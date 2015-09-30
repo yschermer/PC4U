@@ -151,7 +151,23 @@ namespace Dev_PC4U.Controllers
         {
             if (ModelState.IsValid)
             {
-                var user = new ApplicationUser { UserName = model.Email, Email = model.Email };
+                var user = new ApplicationUser
+                {
+                    UserName = model.Email,
+                    Email = model.Email,
+                    Title = model.Title,
+                    FirstName = model.FirstName,
+                    Insertion = model.Insertion,
+                    LastName = model.LastName,
+                    Country = model.Country,
+                    PostalCode = model.PostalCode,
+                    HouseNumber = model.HouseNumber,
+                    HouseNumberExtension = model.HouseNumberExtension,
+                    Street = model.Street,
+                    City = model.City,
+                    BirthDate = model.BirthDate,
+                    TelephoneNumber = model.TelephoneNumber
+                };
                 var result = await UserManager.CreateAsync(user, model.Password);
                 if (result.Succeeded)
                 {
