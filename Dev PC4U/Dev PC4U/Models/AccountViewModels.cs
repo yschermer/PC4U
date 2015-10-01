@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace Dev_PC4U.Models
@@ -64,22 +65,91 @@ namespace Dev_PC4U.Models
 
     public class RegisterViewModel
     {
+        //TODO: Voeg evt. meer validatie toe.
+
         [Required]
         [EmailAddress]
-        [Display(Name = "Email")]
+        [Display(Name = "Emailadres")]
         public string Email { get; set; }
 
         [Required]
-        [StringLength(100, ErrorMessage = "The {0} must be at least {2} characters long.", MinimumLength = 6)]
+        [StringLength(50, ErrorMessage = "Uw wachtwoord mag niet minder dan 6 of meer dan 50 karakters bevatten.", MinimumLength = 6)]
         [DataType(DataType.Password)]
-        [Display(Name = "Password")]
+        [Display(Name = "Wachtwoord")]
         public string Password { get; set; }
 
+        [Required]
         [DataType(DataType.Password)]
-        [Display(Name = "Confirm password")]
-        [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
+        [Display(Name = "Bevestig wachtwoord")]
+        [Compare("Password", ErrorMessage = "De wachtwoorden moeten met elkaar overeenkomen.")]
         public string ConfirmPassword { get; set; }
+
+        [Required]
+        [DataType(DataType.Text)]
+        [Display(Name = "Aanhef")]
+        public string Title { get; set; }
+
+        [Required]
+        [StringLength(50, ErrorMessage = "Uw voornaam mag niet minder dan 2 of meer dan 50 karakters bevatten.", MinimumLength = 2)]
+        [DataType(DataType.Text)]
+        [Display(Name = "Voornaam")]
+        public string FirstName { get; set; }
+
+        [DataType(DataType.Text)]
+        [Range(0, 10)]
+        [Display(Name = "Tussenvoegsel")]
+        public string Insertion { get; set; }
+
+        [Required]
+        [StringLength(50, ErrorMessage = "Uw achternaam mag niet minder dan 2 of meer dan 50 karakters bevatten.", MinimumLength = 2)]
+        [DataType(DataType.Text)]
+        [Display(Name = "Achternaam")]
+        public string LastName { get; set; }
+
+        [Required]
+        [DataType(DataType.Text)]
+        [Display(Name = "Land")]
+        public string Country { get; set; }
+
+        [Required]
+        [DataType(DataType.PostalCode)]
+        [Display(Name = "Postcode")]
+        public string PostalCode { get; set; }
+
+        [Required]
+        [DataType(DataType.Text)]
+        [Display(Name = "Huisnummer")]
+        public string HouseNumber { get; set; }
+
+        [Required]
+        [DataType(DataType.Text)]
+        [Display(Name = "Huisnummertoevoeging")]
+        public string HouseNumberExtension { get; set; }
+
+        [Required]
+        [StringLength(50, ErrorMessage = "Uw adres mag niet minder dan 2 of meer dan 50 karakters bevatten.", MinimumLength = 2)]
+        [DataType(DataType.Text)]
+        [Display(Name = "Straat")]
+        public string Street { get; set; }
+
+        [Required]
+        [StringLength(100, ErrorMessage = "The {0} must be at least {2} characters long.", MinimumLength = 6)]
+        [DataType(DataType.Text)]
+        [Display(Name = "Woonplaats")]
+        public string City { get; set; }
+
+        [Required]
+        [DisplayFormat(ApplyFormatInEditMode = true,
+               DataFormatString = "{0:MM/dd/yyyy}")]
+        [Display(Name = "Geboortedatum")]
+        public DateTime BirthDate { get; set; }
+
+        [Required]
+        [DataType(DataType.PhoneNumber)]
+        [Display(Name = "Telefoonnummer")]
+        public string TelephoneNumber { get; set; }
     }
+}
 
     public class ResetPasswordViewModel
     {
@@ -109,4 +179,4 @@ namespace Dev_PC4U.Models
         [Display(Name = "Email")]
         public string Email { get; set; }
     }
-}
+
