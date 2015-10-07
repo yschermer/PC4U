@@ -43,30 +43,28 @@ namespace Dev_PC4U.Models
     public class ForgotViewModel
     {
         [Required]
-        [Display(Name = "Email")]
+        [Display(Name = "Emailadres")]
         public string Email { get; set; }
     }
 
     public class LoginViewModel
     {
         [Required]
-        [Display(Name = "Email")]
+        [Display(Name = "Emailadres")]
         [EmailAddress]
         public string Email { get; set; }
 
         [Required]
         [DataType(DataType.Password)]
-        [Display(Name = "Password")]
+        [Display(Name = "Wachtwoord")]
         public string Password { get; set; }
 
-        [Display(Name = "Remember me?")]
+        [Display(Name = "Onthoud mij?")]
         public bool RememberMe { get; set; }
     }
 
     public class RegisterViewModel
     {
-        //TODO: Voeg evt. meer validatie toe.
-
         [Required]
         [EmailAddress]
         [Display(Name = "Emailadres")]
@@ -81,7 +79,7 @@ namespace Dev_PC4U.Models
         [Required]
         [DataType(DataType.Password)]
         [Display(Name = "Bevestig wachtwoord")]
-        [Compare("Password", ErrorMessage = "De wachtwoorden moeten met elkaar overeenkomen.")]
+        [Compare("Password", ErrorMessage = "De wachtwoorden komen niet met elkaar overeen.")]
         public string ConfirmPassword { get; set; }
 
         [Required]
@@ -133,7 +131,7 @@ namespace Dev_PC4U.Models
         public string Street { get; set; }
 
         [Required]
-        [StringLength(100, ErrorMessage = "The {0} must be at least {2} characters long.", MinimumLength = 6)]
+        [StringLength(100, ErrorMessage = "Uw woonplaats mag niet minder dan 6 of meer dan 100 karakters bevatten.", MinimumLength = 6)]
         [DataType(DataType.Text)]
         [Display(Name = "Woonplaats")]
         public string City { get; set; }
@@ -142,6 +140,7 @@ namespace Dev_PC4U.Models
         [DisplayFormat(ApplyFormatInEditMode = true,
                DataFormatString = "{0:MM/dd/yyyy}")]
         [Display(Name = "Geboortedatum")]
+        [DataType(DataType.Date)]
         public DateTime BirthDate { get; set; }
 
         [Required]
@@ -155,18 +154,18 @@ namespace Dev_PC4U.Models
     {
         [Required]
         [EmailAddress]
-        [Display(Name = "Email")]
+        [Display(Name = "Emailadres")]
         public string Email { get; set; }
 
         [Required]
-        [StringLength(100, ErrorMessage = "The {0} must be at least {2} characters long.", MinimumLength = 6)]
+        [StringLength(100, ErrorMessage = "Uw wachtwoord mag niet minder dan 6 of meer dan 50 karakters bevatten.", MinimumLength = 6)]
         [DataType(DataType.Password)]
-        [Display(Name = "Password")]
+        [Display(Name = "Wachtwoord")]
         public string Password { get; set; }
 
         [DataType(DataType.Password)]
-        [Display(Name = "Confirm password")]
-        [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
+        [Display(Name = "Bevestig wachtwoord")]
+        [Compare("Password", ErrorMessage = "De wachtwoorden komen niet met elkaar overeen.")]
         public string ConfirmPassword { get; set; }
 
         public string Code { get; set; }
@@ -176,7 +175,7 @@ namespace Dev_PC4U.Models
     {
         [Required]
         [EmailAddress]
-        [Display(Name = "Email")]
+        [Display(Name = "Emailadres")]
         public string Email { get; set; }
     }
 
