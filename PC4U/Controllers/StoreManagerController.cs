@@ -10,14 +10,21 @@ using PC4U.Models;
 
 namespace PC4U.Controllers
 {
-    public class StoreManager : Controller
+    public class StoreManagerController : Controller
     {
         private ApplicationDbContext db = new ApplicationDbContext();
 
         // GET: StoreManager
         public ActionResult Index()
         {
-            return View(db.Products.ToList());
+            var products = db.Products.ToList();
+
+            if(products.Count == 0)
+            {
+                return HttpNotFound();
+            }
+
+            return View(products);
         }
 
         // GET: StoreManager/Details/5
