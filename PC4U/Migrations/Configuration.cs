@@ -29,11 +29,18 @@ namespace PC4U.Migrations
             //    );
             //
 
+            List<Category> categories = new List<Category>()
+            {
+                new Category { CategoryName = "Laptop" }
+            };
+
+            categories.ForEach(category => context.Categories.AddOrUpdate(property => property.CategoryName, category));
+
             List<Product> products = new List<Product>()
             {
-                new Product { ProductName = "Lenovo Z50-70"},
-                new Product { ProductName = "Asus X75V"},
-                new Product { ProductName = "Dell HorizonCollege"}
+                new Product { ProductName = "Lenovo Z50-70", Price = 499.99M, CategoryId = 1},
+                new Product { ProductName = "Asus X75V", Price = 599.99M, CategoryId = 1},
+                new Product { ProductName = "Dell HorizonCollege", Price = 9.99M, CategoryId = 1}
             };
 
             products.ForEach(product => context.Products.AddOrUpdate(property => property.ProductName, product));

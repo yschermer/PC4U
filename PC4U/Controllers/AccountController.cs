@@ -9,6 +9,8 @@ using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.Owin;
 using Microsoft.Owin.Security;
 using PC4U.Models;
+using Microsoft.AspNet.Identity.EntityFramework;
+using System.Collections.Generic;
 
 namespace PC4U.Controllers
 {
@@ -79,6 +81,7 @@ namespace PC4U.Controllers
             switch (result)
             {
                 case SignInStatus.Success:
+                    AddCartToUser();
                     return RedirectToLocal(returnUrl);
                 case SignInStatus.LockedOut:
                     return View("Lockout");
@@ -151,12 +154,29 @@ namespace PC4U.Controllers
         {
             if (ModelState.IsValid)
             {
-                var user = new ApplicationUser { UserName = model.Email, Email = model.Email };
+                var user = new ApplicationUser
+                {
+                    UserName = model.Email,
+                    Email = model.Email,
+                    Title = model.Title,
+                    FirstName = model.FirstName,
+                    Insertion = model.Insertion,
+                    LastName = model.LastName,
+                    Country = model.Country,
+                    PostalCode = model.PostalCode,
+                    HouseNumber = model.HouseNumber,
+                    HouseNumberExtension = model.HouseNumberExtension,
+                    Street = model.Street,
+                    City = model.City,
+                    BirthDate = model.BirthDate,
+                    TelephoneNumber = model.TelephoneNumber
+                };
+
                 var result = await UserManager.CreateAsync(user, model.Password);
                 if (result.Succeeded)
                 {
                     await SignInManager.SignInAsync(user, isPersistent:false, rememberBrowser:false);
-                    
+
                     // For more information on how to enable account confirmation and password reset please visit http://go.microsoft.com/fwlink/?LinkID=320771
                     // Send an email with this link
                     // string code = await UserManager.GenerateEmailConfirmationTokenAsync(user.Id);
@@ -478,6 +498,34 @@ namespace PC4U.Controllers
                     properties.Dictionary[XsrfKey] = UserId;
                 }
                 context.HttpContext.GetOwinContext().Authentication.Challenge(properties, LoginProvider);
+            }
+        }
+
+        private void AddCartToUser()
+        {
+            ApplicationDbContext db = new ApplicationDbContext();
+            string currentUser = HttpContext.User.Identity.GetUserId();
+
+            ShoppingCart currentShoppingCart = new ShoppingCart();
+            currentShoppingCart = db.ShoppingCarts.Where(s => s.UserId == currentUser).FirstOrDefault();
+
+            if (Session["ShoppingCart"] != null)
+            {
+                if (currentShoppingCart != null)
+                {
+                    // Voeg winkelwagen toe aan huidige.
+                    currentShoppingCart.Products.AddRange((List<Product>)Session["ShoppingCart"]);
+                    db.Entry(currentShoppingCart).State = System.Data.Entity.EntityState.Modified;
+                }
+                else
+                {
+                    // Voeg winkelwagen toe.
+                    ShoppingCart newShoppingCart = new ShoppingCart();
+                    newShoppingCart.UserId = currentUser;
+                    newShoppingCart.Products.AddRange((List<Product>)Session["ShoppingCart"]);
+                    db.ShoppingCarts.Add(newShoppingCart);
+                }
+                db.SaveChanges();
             }
         }
         #endregion

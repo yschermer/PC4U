@@ -1,0 +1,61 @@
+﻿@model PC4U.Models.Product
+
+@{
+    ViewBag.Title = "Details";
+}
+
+<h2>Details</h2>
+
+@using (Html.BeginForm("AddToCart", "ShoppingCarts", FormMethod.Post))
+{
+    <div>
+        <h4>Product</h4>
+        <hr />
+        @Html.HiddenFor(model => model.ProductId)
+
+        <dl class="dl-horizontal">
+
+            <dt>
+                @Html.DisplayNameFor(model => model.ProductName)
+            </dt>
+
+            <dd>
+                @Html.DisplayFor(model => model.ProductName)
+            </dd>
+
+            <dt>
+                @Html.DisplayNameFor(model => model.Category.CategoryName)
+            </dt>
+
+            <dd>
+                @Html.DisplayFor(model => model.Category.CategoryName)
+            </dd>
+
+            <dt>
+                @Html.DisplayNameFor(model => model.Price)
+            </dt>
+
+            <dd>
+                @Html.DisplayFor(model => model.Price)
+            </dd>
+
+            <dt>
+                @Html.DisplayNameFor(model => model.Image)
+            </dt>
+
+            <dd>
+                @{
+                    foreach (PC4U.Models.Image image in Model.Image)
+                    {
+                        <img src="data:image/jpg;base64,@PC4U.Helpers.CustomConverter.ConvertByteArrayToString(image.EncodedImage)" width="80" height="80" />
+                    }
+                }
+            </dd>
+
+        </dl>
+    </div>
+    <p>
+        <input type="submit" class="btn btn-default" value="Toevoegen aan winkelwagen" />
+        @Html.ActionLink("Back to List", "Index")
+    </p>
+}
