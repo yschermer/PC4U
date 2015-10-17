@@ -11,6 +11,7 @@ using PC4U.Helpers;
 
 namespace PC4U.Controllers
 {
+    [Authorize(Roles = "Administrator")]
     public class ProductsController : Controller
     {
         private ApplicationDbContext db = new ApplicationDbContext();

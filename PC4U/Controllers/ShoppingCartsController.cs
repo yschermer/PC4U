@@ -30,7 +30,7 @@ namespace PC4U.Controllers
                 shoppingCart.Products = (List<Product>)Session["ShoppingCart"];
             }
 
-            if (shoppingCart == null)
+            if (shoppingCart == null || shoppingCart.ShoppingCartId == 0)
             {
                 //TODO: Vervang dit met een melding dat de winkelwagen leeg is.
                 return HttpNotFound();
@@ -84,7 +84,7 @@ namespace PC4U.Controllers
                     Session["ShoppingCart"] = products;
                 }
             }
-            return RedirectToAction("Index");
+            return RedirectToAction("Index", "Store", null);
         }
 
         //// GET: ShoppingCarts/EditCart/5

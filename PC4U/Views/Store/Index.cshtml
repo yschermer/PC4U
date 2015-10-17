@@ -2,50 +2,78 @@
 
 @{
     ViewBag.Title = "Index";
+    <link href="~/Content/shop-homepage.css" type="text/css" rel="stylesheet" />
 }
 
-<h2>Index</h2>
+<div class="row">
 
-<table class="table">
-    <tr>
-        <th>
-            @Html.DisplayNameFor(model => model.ProductName)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.Category.CategoryName)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.Price)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.Image)
-        </th>
-        <th></th>
-    </tr>
+    <div class="col-md-3">
+        <p class="lead">PC4U</p>
+        <div class="list-group">
+            @foreach (var item in ViewBag.Categories as List<PC4U.Models.Category>)
+            {
+                @Html.ActionLink(item.CategoryName, "Categories", new { categoryId = item.CategoryId }, new { @class = "list-group-item" });
+            }
+        </div>
+    </div>
 
-    @foreach (var item in Model)
-    {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.ProductName)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Category.CategoryName)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Price)
-            </td>
-            <td>
-                @{
-                    foreach (PC4U.Models.Image image in item.Image)
-                    {
-                        <img src="data:image/jpg;base64,@PC4U.Helpers.CustomConverter.ConvertByteArrayToString(image.EncodedImage)" width="80" height="80" />
-                    }
-                }
-            </td>
-            <td>
-                @Html.ActionLink("Details", "Details", new { id = item.ProductId })
-            </td>
-        </tr>
-    }
-</table>
+    <div class="col-md-9">
+
+        <div class="row carousel-holder">
+
+            <div class="col-md-12">
+                <div id="carousel-example-generic" class="carousel slide" data-ride="carousel">
+                    <ol class="carousel-indicators">
+                        <li data-target="#carousel-example-generic" data-slide-to="0" class="active"></li>
+                        <li data-target="#carousel-example-generic" data-slide-to="1" class=""></li>
+                        <li data-target="#carousel-example-generic" data-slide-to="2" class=""></li>
+                    </ol>
+                    <div class="carousel-inner">
+                        <div class="item active">
+                            <img class="slide-image" src="http://placehold.it/800x300" alt="">
+                        </div>
+                        <div class="item">
+                            <img class="slide-image" src="http://placehold.it/800x300" alt="">
+                        </div>
+                        <div class="item">
+                            <img class="slide-image" src="http://placehold.it/800x300" alt="">
+                        </div>
+                    </div>
+                    <a class="left carousel-control" href="#carousel-example-generic" data-slide="prev">
+                        <span class="glyphicon glyphicon-chevron-left"></span>
+                    </a>
+                    <a class="right carousel-control" href="#carousel-example-generic" data-slide="next">
+                        <span class="glyphicon glyphicon-chevron-right"></span>
+                    </a>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="row">
+            @foreach (var item in Model)
+            {
+            <div class="col-sm-4 col-lg-4 col-md-4" style="margin-top:25px;">
+                <div class="thumbnail">
+                        @foreach (PC4U.Models.Image image in item.Image)
+                        {
+                            <img src="data:image/jpg;base64,@PC4U.Helpers.CustomConverter.ConvertByteArrayToString(image.EncodedImage)" style="max-height: 180px;" alt=""/>
+                        }
+                        @if (item.Image.Count == 0)
+                        {
+                            <img src="https://placeholdit.imgix.net/~text?txtsize=30&txt=320%C3%97250&w=320&h=250" style="max-height: 180px;" alt="">
+                        }
+                    <div class="caption" style="max-height: 130px;">
+                        <h4>
+                            @Html.DisplayFor(modelItem => item.ProductName)
+                        </h4>
+                        <hr />
+                        @Html.ActionLink("Details", "Details", new { id = item.ProductId }, new { @class = "btn btn-primary" })
+                        <h4 class="pull-right">@Html.DisplayFor(modelItem => item.Price)</h4>
+                    </div>
+                </div>
+            </div>
+            }
+        </div>
+    </div>
+</div>

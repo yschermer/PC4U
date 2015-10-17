@@ -4,58 +4,65 @@
     ViewBag.Title = "Details";
 }
 
-<h2>Details</h2>
-
 @using (Html.BeginForm("AddToCart", "ShoppingCarts", FormMethod.Post))
 {
-    <div>
-        <h4>Product</h4>
+    <div style="margin-top:20px;">
+        @Html.ActionLink("Back to List", "Index")
         <hr />
-        @Html.HiddenFor(model => model.ProductId)
+    </div>
 
-        <dl class="dl-horizontal">
+    @Html.HiddenFor(model => model.ProductId)
 
-            <dt>
-                @Html.DisplayNameFor(model => model.ProductName)
-            </dt>
-
-            <dd>
-                @Html.DisplayFor(model => model.ProductName)
-            </dd>
-
-            <dt>
-                @Html.DisplayNameFor(model => model.Category.CategoryName)
-            </dt>
-
-            <dd>
-                @Html.DisplayFor(model => model.Category.CategoryName)
-            </dd>
-
-            <dt>
-                @Html.DisplayNameFor(model => model.Price)
-            </dt>
-
-            <dd>
-                @Html.DisplayFor(model => model.Price)
-            </dd>
-
-            <dt>
-                @Html.DisplayNameFor(model => model.Image)
-            </dt>
-
-            <dd>
+    <div class="row">
+        <div class="col-lg-6 col-md-6 col-sm-6">
+            <!-- Main Image -->
+            <div class="product-main-image-container">
                 @{
-                    foreach (PC4U.Models.Image image in Model.Image)
+                    if (Model.Image.Count == 0)
                     {
-                        <img src="data:image/jpg;base64,@PC4U.Helpers.CustomConverter.ConvertByteArrayToString(image.EncodedImage)" width="80" height="80" />
+                        <img src="http://placehold.it/400x400" style="max-height: 400px;" alt="">
+                    }
+                    else
+                    {
+                        <img src="data:image/jpg;base64,@PC4U.Helpers.CustomConverter.ConvertByteArrayToString(Model.Image.FirstOrDefault().EncodedImage)" style="max-height:400px; max-width:400px;" alt="" />
                     }
                 }
-            </dd>
+            </div>
+        </div>
 
-        </dl>
+        <div class="visible-xs">
+            <div class="clearfix"></div>
+        </div>
+
+        <div class="col-lg-6 col-md-6 col-sm-6">
+            <div class="well product-short-detail">
+                <div class="row">
+                    <div class="the-list">
+                        <h3 class="col-xs-12">
+                            <!-- <span class="price-old">$169</span> -->
+                            @Html.DisplayFor(model => model.ProductName)
+                        </h3>
+                    </div>
+                    <div class="the-list">
+                        <h5 class="col-xs-12">
+                            <!-- <span class="price-old">$169</span> -->
+                            @Html.DisplayFor(model => model.Category.CategoryName)
+                        </h5>
+                    </div>
+                    <div class="the-list">
+                        <h3 class="col-xs-12">
+                            <!-- <span class="price-old">$169</span> -->
+                            @Html.DisplayFor(model => model.Price)
+                        </h3>
+                    </div>
+                    <hr>
+                    <div class="col-xs-12 input-qty-detail">
+                        <input type="submit" class="btn btn-default" value="Toevoegen aan winkelwagen" />
+                    </div>
+                    <div class="clearfix"></div><br>
+                </div>
+            </div>
+        </div>
+        <div class="clearfix"></div><br clear="all">
     </div>
-    <p>
-        <input type="submit" class="btn btn-default" value="Toevoegen aan winkelwagen" />
-        @Html.ActionLink("Back to List", "Index")
-    </p>
 }

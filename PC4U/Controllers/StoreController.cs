@@ -26,6 +26,8 @@ namespace PC4U.Controllers
                 return HttpNotFound();
             }
 
+            ViewBag.Categories = db.Categories.ToList();
+
             return View(products);
         }
 
@@ -42,6 +44,24 @@ namespace PC4U.Controllers
                 return HttpNotFound();
             }
             return View(product);
+        }
+
+        // GET: Store/Categories/1
+        public ActionResult Categories (int categoryId)
+        {
+            if (categoryId == 0)
+            {
+                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+            }
+            List<Product> products = db.Products.Where(p => p.CategoryId == categoryId).ToList();
+            if (products.Count == 0)
+            {
+                return HttpNotFound();
+            }
+
+            ViewBag.Categories = db.Categories.ToList();
+
+            return View("Index", products);
         }
     }
 }

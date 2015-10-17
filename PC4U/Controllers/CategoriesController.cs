@@ -10,6 +10,7 @@ using PC4U.Models;
 
 namespace PC4U.Controllers
 {
+    [Authorize(Roles = "Administrator")]
     public class CategoriesController : Controller
     {
         private ApplicationDbContext db = new ApplicationDbContext();

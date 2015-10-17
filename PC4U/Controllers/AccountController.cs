@@ -81,7 +81,7 @@ namespace PC4U.Controllers
             switch (result)
             {
                 case SignInStatus.Success:
-                    AddCartToUser();
+                    AddCartToUser(model.Email);
                     return RedirectToLocal(returnUrl);
                 case SignInStatus.LockedOut:
                     return View("Lockout");
@@ -156,7 +156,7 @@ namespace PC4U.Controllers
             {
                 var user = new ApplicationUser
                 {
-                    UserName = model.Email,
+                    UserName = model.FirstName,
                     Email = model.Email,
                     Title = model.Title,
                     FirstName = model.FirstName,
@@ -183,7 +183,7 @@ namespace PC4U.Controllers
                     // var callbackUrl = Url.Action("ConfirmEmail", "Account", new { userId = user.Id, code = code }, protocol: Request.Url.Scheme);
                     // await UserManager.SendEmailAsync(user.Id, "Confirm your account", "Please confirm your account by clicking <a href=\"" + callbackUrl + "\">here</a>");
 
-                    return RedirectToAction("Index", "Home");
+                    return RedirectToAction("Index", "Store");
                 }
                 AddErrors(result);
             }
@@ -412,7 +412,7 @@ namespace PC4U.Controllers
         public ActionResult LogOff()
         {
             AuthenticationManager.SignOut(DefaultAuthenticationTypes.ApplicationCookie);
-            return RedirectToAction("Index", "Home");
+            return RedirectToAction("Index", "Store");
         }
 
         //
@@ -469,7 +469,7 @@ namespace PC4U.Controllers
             {
                 return Redirect(returnUrl);
             }
-            return RedirectToAction("Index", "Home");
+            return RedirectToAction("Index", "Store");
         }
 
         internal class ChallengeResult : HttpUnauthorizedResult
@@ -501,10 +501,10 @@ namespace PC4U.Controllers
             }
         }
 
-        private void AddCartToUser()
+        private void AddCartToUser(string email)
         {
             ApplicationDbContext db = new ApplicationDbContext();
-            string currentUser = HttpContext.User.Identity.GetUserId();
+            string currentUser = db.Users.Where(u => u.Email == email).FirstOrDefault().Id;
 
             ShoppingCart currentShoppingCart = new ShoppingCart();
             currentShoppingCart = db.ShoppingCarts.Where(s => s.UserId == currentUser).FirstOrDefault();
@@ -520,9 +520,11 @@ namespace PC4U.Controllers
                 else
                 {
                     // Voeg winkelwagen toe.
-                    ShoppingCart newShoppingCart = new ShoppingCart();
-                    newShoppingCart.UserId = currentUser;
-                    newShoppingCart.Products.AddRange((List<Product>)Session["ShoppingCart"]);
+                    ShoppingCart newShoppingCart = new ShoppingCart()
+                    {
+                        UserId = currentUser,
+                        Products = ((List<Product>)Session["ShoppingCart"])
+                    };
                     db.ShoppingCarts.Add(newShoppingCart);
                 }
                 db.SaveChanges();
