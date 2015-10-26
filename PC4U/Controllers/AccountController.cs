@@ -11,6 +11,7 @@ using Microsoft.Owin.Security;
 using PC4U.Models;
 using Microsoft.AspNet.Identity.EntityFramework;
 using System.Collections.Generic;
+using System.Data.Entity;
 
 namespace PC4U.Controllers
 {
@@ -503,31 +504,59 @@ namespace PC4U.Controllers
 
         private void AddCartToUser(string email)
         {
-            ApplicationDbContext db = new ApplicationDbContext();
-            string currentUser = db.Users.Where(u => u.Email == email).FirstOrDefault().Id;
-
-            ShoppingCart currentShoppingCart = new ShoppingCart();
-            currentShoppingCart = db.ShoppingCarts.Where(s => s.UserId == currentUser).FirstOrDefault();
-
             if (Session["ShoppingCart"] != null)
             {
+                ApplicationDbContext db = new ApplicationDbContext();
+                string currentUserId = db.Users.Where(u => u.Email == email).FirstOrDefault().Id;
+
+                ShoppingCart currentShoppingCart = new ShoppingCart();
+                currentShoppingCart = db.ShoppingCarts.Where(s => s.UserId == currentUserId).FirstOrDefault();
+
+                List<ShoppingCartProduct> shoppingCartProducts = (List<ShoppingCartProduct>)Session["ShoppingCart"];
+                int[] productIds = shoppingCartProducts.Select(s => s.ProductId).ToArray();
+                List<Product> products = null;
+                foreach (int productId in productIds)
+                {
+                    if (products == null)
+                    {
+                        products = new List<Product>() { db.Products.Find(productId) };
+                    }
+                    else
+                    {
+                        products.Add(db.Products.Find(productId));
+                    }
+                }
+
                 if (currentShoppingCart != null)
                 {
                     // Voeg winkelwagen toe aan huidige.
-                    currentShoppingCart.Products.AddRange((List<Product>)Session["ShoppingCart"]);
-                    db.Entry(currentShoppingCart).State = System.Data.Entity.EntityState.Modified;
+                    foreach (ShoppingCartProduct s in shoppingCartProducts)
+                    {
+                        s.ShoppingCartId = currentShoppingCart.ShoppingCartId;
+                    }
+                    db.ShoppingCartProducts.AddRange(shoppingCartProducts);
+                    db.SaveChanges();
                 }
                 else
                 {
                     // Voeg winkelwagen toe.
-                    ShoppingCart newShoppingCart = new ShoppingCart()
+                    ShoppingCart shoppingCart = new ShoppingCart()
                     {
-                        UserId = currentUser,
-                        Products = ((List<Product>)Session["ShoppingCart"])
+                        UserId = currentUserId,
+                        Products = products
                     };
-                    db.ShoppingCarts.Add(newShoppingCart);
+                    db.ShoppingCarts.Add(shoppingCart);
+                    db.SaveChanges();
+
+                    currentShoppingCart = db.ShoppingCarts.Where(s => s.UserId == currentUserId).FirstOrDefault();
+                    foreach (ShoppingCartProduct s in shoppingCartProducts)
+                    {
+                        s.ShoppingCartId = currentShoppingCart.ShoppingCartId;
+                        db.Entry(s).State = EntityState.Modified;
+                        db.SaveChanges();
+                    }
                 }
-                db.SaveChanges();
+                Session["ShoppingCart"] = null;
             }
         }
         #endregion

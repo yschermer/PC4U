@@ -1,4 +1,4 @@
-﻿@model IEnumerable<PC4U.Models.Product>
+﻿@model IEnumerable<PC4U.Models.ShoppingCartProduct>
 
 @{
     ViewBag.Title = "Winkelwagen";
@@ -9,31 +9,52 @@
 <table class="table">
     <tr>
         <th>
-            @Html.DisplayNameFor(model => model.ProductName)
+            @Html.DisplayNameFor(model => model.Product.ProductName)
         </th>
         <th>
-            @Html.DisplayNameFor(model => model.Category.CategoryName)
+            @Html.DisplayNameFor(model => model.Product.Category.CategoryName)
         </th>
         <th>
-            @Html.DisplayNameFor(model => model.Price)
+            @Html.DisplayNameFor(model => model.Product.Price)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.AmountOfProducts)
         </th>
         <th></th>
+        <th></th>
     </tr>
-
     @foreach (var item in Model)
     {
         <tr>
             <td>
-                @Html.DisplayFor(modelItem => item.ProductName)
+                @Html.DisplayFor(modelItem => item.Product.ProductName)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Category.CategoryName)
+                @Html.DisplayFor(modelItem => item.Product.Category.CategoryName)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Price)
+                @Html.DisplayFor(modelItem => item.Product.Price)
             </td>
-            <td>
-                @Html.ActionLink("Details", "Details", "Store", new { id = item.ProductId }, null)
+            @using (Html.BeginForm("EditCart", "ShoppingCarts", FormMethod.Post))
+            {
+                @Html.AntiForgeryToken()
+                <td style="max-width:50px;">
+                    <input class="form-control" data-val="true" data-val-number="The field AmountOfProducts must be a number." data-val-required="The AmountOfProducts field is required." id="item_AmountOfProducts" name="AmountOfProducts" type="number" value="@item.AmountOfProducts" style="max-width:70px">
+                    <input data-val="true" data-val-number="The field ShoppingCartId must be a number." data-val-required="The ShoppingCartId field is required." id="item_ShoppingCartId" name="ShoppingCartId" type="hidden" value="@item.ShoppingCartId">
+                    <input data-val="true" data-val-number="The field ProductId must be a number." data-val-required="The ProductId field is required." id="item_ProductId" name="ProductId" type="hidden" value="@item.ProductId">
+                </td>
+                <td>
+                    <input type="submit" value="Wijzig" class="btn btn-default" style="float:right;" />
+                </td>
+            }
+            <td style="max-width:60px; width:100px;">
+                @using (Html.BeginForm("DeleteFromCart", "ShoppingCarts", FormMethod.Post))
+                {
+                    @Html.AntiForgeryToken();
+                    <input data-val="true" data-val-number="The field ShoppingCartId must be a number." data-val-required="The ShoppingCartId field is required." id="item_ShoppingCartId" name="ShoppingCartId" type="hidden" value="@item.ShoppingCartId">
+                    <input data-val="true" data-val-number="The field ProductId must be a number." data-val-required="The ProductId field is required." id="item_ProductId" name="ProductId" type="hidden" value="@item.ProductId">
+                    <input type="submit" value="Verwijder" class="btn btn-default" style="float:right;" />
+                }
             </td>
         </tr>
     }

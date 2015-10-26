@@ -19,33 +19,45 @@ namespace PC4U.Controllers
         public ActionResult Index()
         {
             string currentUser = HttpContext.User.Identity.GetUserId();
-            ShoppingCart shoppingCart = new ShoppingCart();
+            ShoppingCart shoppingCart = null;
+            List<ShoppingCartProduct> shoppingCartProducts = new List<ShoppingCartProduct>();
 
             if (currentUser != null)
             {
                 shoppingCart = db.ShoppingCarts.Where(s => s.UserId == currentUser).FirstOrDefault();
+
+                if(shoppingCart != null)
+                {
+                    shoppingCartProducts = db.ShoppingCartProducts.Where(s => s.ShoppingCartId == shoppingCart.ShoppingCartId).OrderBy(p => p.ProductId).ToList();
+                }
             }
             else
             {
-                shoppingCart.Products = (List<Product>)Session["ShoppingCart"];
+                shoppingCartProducts = (List<ShoppingCartProduct>)Session["ShoppingCart"];
+                if(shoppingCartProducts != null)
+                {
+                    foreach (ShoppingCartProduct s in shoppingCartProducts)
+                    {
+                        s.Product = db.Products.Where(p => p.ProductId == s.ProductId).FirstOrDefault();
+                    }
+                }
             }
 
-            if (shoppingCart == null || shoppingCart.ShoppingCartId == 0)
+            if (shoppingCartProducts == null)
             {
                 //TODO: Vervang dit met een melding dat de winkelwagen leeg is.
                 return HttpNotFound();
             }
 
-            return View(shoppingCart.Products);
+            return View(shoppingCartProducts);
         }
 
         // POST: ShoppingCarts/AddToCart
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
-        public ActionResult AddToCart([Bind(Include = "ProductId")] Product product)
+        public ActionResult AddToCart([Bind(Include = "ShoppingCartId, ProductId, AmountOfProducts")] ShoppingCartProduct shoppingCartProduct)
         {
-            product = db.Products.Find(product.ProductId);
             string currentUser = HttpContext.User.Identity.GetUserId();
 
             if (currentUser != null)
@@ -54,97 +66,113 @@ namespace PC4U.Controllers
 
                 if (currentShoppingCart != null)
                 {
-                    // Voeg winkelwagen toe aan huidige.
-                    currentShoppingCart.Products.Add(product);
-                    db.Entry(currentShoppingCart).State = EntityState.Modified;
+                    // Voeg winkelwagen toe aan bestaande winkelwagen.
+                    ShoppingCartProduct currentShoppingCartProduct = new ShoppingCartProduct()
+                    {
+                        ShoppingCartId = currentShoppingCart.ShoppingCartId,
+                        ProductId = shoppingCartProduct.ProductId,
+                        AmountOfProducts = shoppingCartProduct.AmountOfProducts
+                    };
+                    db.ShoppingCartProducts.Add(currentShoppingCartProduct);
                 }
                 else
                 {
-                    // Voeg winkelwagen toe.
+                    // Maak een nieuwe winkelwagen aan.
                     ShoppingCart shoppingCart = new ShoppingCart()
                     {
                         UserId = currentUser,
-                        Products = new List<Product>() { product }
+                        Products = new List<Product>()
+                        {
+                            db.Products.Find(shoppingCartProduct.ProductId)
+                        }
                     };
                     db.ShoppingCarts.Add(shoppingCart);
+                    db.SaveChanges();
+
+                    currentShoppingCart = db.ShoppingCarts.Where(s => s.UserId == currentUser).FirstOrDefault();
+
+                    ShoppingCartProduct currentShoppingCartProduct = new ShoppingCartProduct()
+                    {
+                        ShoppingCartId = currentShoppingCart.ShoppingCartId,
+                        ProductId = shoppingCartProduct.ProductId,
+                        AmountOfProducts = shoppingCartProduct.AmountOfProducts
+                    };
+                    db.Entry(currentShoppingCartProduct).State = EntityState.Modified;
                 }
                 db.SaveChanges();
             }
             else
             {
-                List<Product> products = new List<Product>() { product };
+                List<ShoppingCartProduct> shoppingCartProducts = new List<ShoppingCartProduct>();
+                shoppingCartProducts.Add(shoppingCartProduct);
 
                 if (Session["ShoppingCart"] == null)
                 {
-                    Session["ShoppingCart"] = products;
+                    Session["ShoppingCart"] = shoppingCartProducts;
                 }
                 else
                 {
-                    products.AddRange((List<Product>)Session["ShoppingCart"]);
-                    Session["ShoppingCart"] = products;
+                    shoppingCartProducts.AddRange((List<ShoppingCartProduct>)Session["ShoppingCart"]);
+                    Session["ShoppingCart"] = shoppingCartProducts;
                 }
             }
             return RedirectToAction("Index", "Store", null);
         }
 
-        //// GET: ShoppingCarts/EditCart/5
-        //public ActionResult EditCart(int? id)
-        //{
-        //    if (id == null)
-        //    {
-        //        return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-        //    }
-        //    ShoppingCart shoppingCart = db.ShoppingCarts.Find(id);
-        //    if (shoppingCart == null)
-        //    {
-        //        return HttpNotFound();
-        //    }
-        //    ViewBag.UserId = new SelectList(db.ApplicationUsers, "Id", "FirstName", shoppingCart.UserId);
-        //    return View(shoppingCart);
-        //}
+        // POST: ShoppingCarts/EditCart/5
+        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
+        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult EditCart([Bind(Include = "ShoppingCartId, ProductId, AmountOfProducts")] ShoppingCartProduct shoppingCartProduct)
+        {
+            var userId = HttpContext.User.Identity.GetUserId();
+            var currentUser = db.Users.Where(u => u.Id == userId).FirstOrDefault();
 
-        //// POST: ShoppingCarts/EditCart/5
-        //// To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        //// more details see http://go.microsoft.com/fwlink/?LinkId=317598.
-        //[HttpPost]
-        //[ValidateAntiForgeryToken]
-        //public ActionResult EditCart([Bind(Include = "ShoppingCartId,UserId")] ShoppingCart shoppingCart)
-        //{
-        //    if (ModelState.IsValid)
-        //    {
-        //        db.Entry(shoppingCart).State = EntityState.Modified;
-        //        db.SaveChanges();
-        //        return RedirectToAction("Index");
-        //    }
-        //    ViewBag.UserId = new SelectList(db.ApplicationUsers, "Id", "FirstName", shoppingCart.UserId);
-        //    return View(shoppingCart);
-        //}
+            if (ModelState.IsValid)
+            {
+                if (currentUser != null)
+                {
+                    ShoppingCart shoppingCart = db.ShoppingCarts.Where(s => s.UserId == currentUser.Id).FirstOrDefault();
+                    shoppingCartProduct.ShoppingCartId = shoppingCart.ShoppingCartId;
+                    db.Entry(shoppingCartProduct).State = EntityState.Modified;
+                    db.SaveChanges();
+                }
+                else
+                {
+                    List<ShoppingCartProduct> shoppingCartProducts = (List<ShoppingCartProduct>)Session["ShoppingCart"];
+                    ShoppingCartProduct tempShoppingCartProduct = shoppingCartProducts.Where(s => s.ProductId == shoppingCartProduct.ProductId && s.ShoppingCartId == shoppingCartProduct.ShoppingCartId).FirstOrDefault();
+                    shoppingCartProducts.Remove(tempShoppingCartProduct);
+                    shoppingCartProducts.Add(shoppingCartProduct);
+                }
+            }
+            return RedirectToAction("Index");
+        }
 
-        //// GET: ShoppingCarts/DeleteFromCart/5
-        //public ActionResult DeleteFromCart(int? id)
-        //{
-        //    if (id == null)
-        //    {
-        //        return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-        //    }
-        //    ShoppingCart shoppingCart = db.ShoppingCarts.Find(id);
-        //    if (shoppingCart == null)
-        //    {
-        //        return HttpNotFound();
-        //    }
-        //    return View(shoppingCart);
-        //}
+        // POST: ShoppingCarts/DeleteFromCart/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult DeleteFromCart([Bind(Include = "ShoppingCartId, ProductId")] ShoppingCartProduct shoppingCartProduct)
+        {
+            var userId = HttpContext.User.Identity.GetUserId();
+            var currentUser = db.Users.Where(u => u.Id == userId).FirstOrDefault();
 
-        //// POST: ShoppingCarts/DeleteFromCart/5
-        //[HttpPost, ActionName("DeleteFromCart")]
-        //[ValidateAntiForgeryToken]
-        //public ActionResult DeleteFromCartConfirmed(int id)
-        //{
-        //    ShoppingCart shoppingCart = db.ShoppingCarts.Find(id);
-        //    db.ShoppingCarts.Remove(shoppingCart);
-        //    db.SaveChanges();
-        //    return RedirectToAction("Index");
-        //}
+            if(currentUser != null)
+            {
+                ShoppingCart shoppingCart = db.ShoppingCarts.Where(s => s.UserId == currentUser.Id).FirstOrDefault();
+                shoppingCartProduct = db.ShoppingCartProducts.Where(s => s.ShoppingCartId == shoppingCart.ShoppingCartId && s.ProductId == shoppingCartProduct.ProductId).FirstOrDefault();
+                db.ShoppingCartProducts.Remove(shoppingCartProduct);
+                db.SaveChanges();
+            }
+            else
+            {
+                List<ShoppingCartProduct> shoppingCartProducts = (List<ShoppingCartProduct>)Session["ShoppingCart"];
+                ShoppingCartProduct tempShoppingCartProduct = shoppingCartProducts.Where(s => s.ProductId == shoppingCartProduct.ProductId && s.ShoppingCartId == shoppingCartProduct.ShoppingCartId).FirstOrDefault();
+                shoppingCartProducts.Remove(tempShoppingCartProduct);
+            }
+
+            return RedirectToAction("Index");
+        }
 
         //protected override void Dispose(bool disposing)
         //{
