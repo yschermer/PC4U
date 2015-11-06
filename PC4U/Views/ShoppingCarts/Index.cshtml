@@ -59,3 +59,10 @@
         </tr>
     }
 </table>
+<div class="col-md-12" style="height:50px;">
+    @using (Html.BeginForm("Checkout", "Orders", FormMethod.Post))
+    {
+        @Html.AntiForgeryToken()
+        <input type="submit" value="Ga naar bestellen" class="btn btn-default" style="float:right;margin:10px;" />
+    }
+</div>

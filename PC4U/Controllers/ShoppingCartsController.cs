@@ -24,7 +24,7 @@ namespace PC4U.Controllers
 
             if (currentUser != null)
             {
-                shoppingCart = db.ShoppingCarts.Where(s => s.UserId == currentUser).FirstOrDefault();
+                shoppingCart = db.ShoppingCarts.Where(s => s.UserId == currentUser && s.Status == StatusEnum.Unordered).FirstOrDefault();
 
                 if(shoppingCart != null)
                 {
@@ -46,7 +46,7 @@ namespace PC4U.Controllers
             if (shoppingCartProducts == null)
             {
                 //TODO: Vervang dit met een melding dat de winkelwagen leeg is.
-                return HttpNotFound();
+                return RedirectToAction("Index", "Store", null);
             }
 
             return View(shoppingCartProducts);
@@ -73,7 +73,15 @@ namespace PC4U.Controllers
                         ProductId = shoppingCartProduct.ProductId,
                         AmountOfProducts = shoppingCartProduct.AmountOfProducts
                     };
-                    db.ShoppingCartProducts.Add(currentShoppingCartProduct);
+
+                    if (db.ShoppingCartProducts.Where(s => s.ProductId == currentShoppingCartProduct.ProductId && s.ShoppingCartId == currentShoppingCart.ShoppingCartId).Any())
+                    {
+                        db.Entry(currentShoppingCartProduct).State = EntityState.Modified;
+                    }
+                    else
+                    {
+                        db.ShoppingCartProducts.Add(currentShoppingCartProduct);
+                    }
                 }
                 else
                 {
@@ -104,15 +112,19 @@ namespace PC4U.Controllers
             else
             {
                 List<ShoppingCartProduct> shoppingCartProducts = new List<ShoppingCartProduct>();
-                shoppingCartProducts.Add(shoppingCartProduct);
-
-                if (Session["ShoppingCart"] == null)
+                var temp = (List<ShoppingCartProduct>)Session["ShoppingCart"];
+                if (Session["ShoppingCart"] == null || temp.Count == 0)
                 {
+                    shoppingCartProducts.Add(shoppingCartProduct);
                     Session["ShoppingCart"] = shoppingCartProducts;
                 }
                 else
                 {
                     shoppingCartProducts.AddRange((List<ShoppingCartProduct>)Session["ShoppingCart"]);
+                    if (!shoppingCartProducts.Where(s => s.ProductId == shoppingCartProduct.ProductId).Any())
+                    {
+                        shoppingCartProducts.Add(shoppingCartProduct);
+                    }
                     Session["ShoppingCart"] = shoppingCartProducts;
                 }
             }

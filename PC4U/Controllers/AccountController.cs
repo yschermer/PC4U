@@ -510,49 +510,48 @@ namespace PC4U.Controllers
                 string currentUserId = db.Users.Where(u => u.Email == email).FirstOrDefault().Id;
 
                 ShoppingCart currentShoppingCart = new ShoppingCart();
-                currentShoppingCart = db.ShoppingCarts.Where(s => s.UserId == currentUserId).FirstOrDefault();
-
-                List<ShoppingCartProduct> shoppingCartProducts = (List<ShoppingCartProduct>)Session["ShoppingCart"];
-                int[] productIds = shoppingCartProducts.Select(s => s.ProductId).ToArray();
-                List<Product> products = null;
-                foreach (int productId in productIds)
-                {
-                    if (products == null)
-                    {
-                        products = new List<Product>() { db.Products.Find(productId) };
-                    }
-                    else
-                    {
-                        products.Add(db.Products.Find(productId));
-                    }
-                }
+                currentShoppingCart = db.ShoppingCarts.Include(s => s.User).Where(s => s.UserId == currentUserId).FirstOrDefault();
+                List<ShoppingCartProduct> shoppingCartProductsNew = (List<ShoppingCartProduct>)Session["ShoppingCart"];
 
                 if (currentShoppingCart != null)
                 {
+                    List<ShoppingCartProduct> shoppingCartProducts = db.ShoppingCartProducts.Where(s => s.ShoppingCartId == currentShoppingCart.ShoppingCartId).ToList();
+
                     // Voeg winkelwagen toe aan huidige.
-                    foreach (ShoppingCartProduct s in shoppingCartProducts)
+                    foreach (ShoppingCartProduct s in shoppingCartProductsNew)
                     {
                         s.ShoppingCartId = currentShoppingCart.ShoppingCartId;
+                        s.Product = null;
+                        var shoppingCartProductToRemove = shoppingCartProducts.Where(scp => scp.ProductId == s.ProductId).FirstOrDefault();
+                        if (shoppingCartProductToRemove != null)
+                        {
+                            db.ShoppingCartProducts.Remove(shoppingCartProductToRemove);
+                            db.SaveChanges();
+                        }
+                        db.ShoppingCartProducts.Add(s);
+                        db.SaveChanges();
                     }
-                    db.ShoppingCartProducts.AddRange(shoppingCartProducts);
-                    db.SaveChanges();
                 }
                 else
                 {
                     // Voeg winkelwagen toe.
+                    int latestShoppingCartId = db.ShoppingCarts.Any() ? db.ShoppingCarts.Max(s => s.ShoppingCartId) : 1;
                     ShoppingCart shoppingCart = new ShoppingCart()
                     {
-                        UserId = currentUserId,
-                        Products = products
+                        ShoppingCartId = latestShoppingCartId + 1,
+                        UserId = currentUserId
                     };
-                    db.ShoppingCarts.Add(shoppingCart);
-                    db.SaveChanges();
 
-                    currentShoppingCart = db.ShoppingCarts.Where(s => s.UserId == currentUserId).FirstOrDefault();
-                    foreach (ShoppingCartProduct s in shoppingCartProducts)
+                    foreach (ShoppingCartProduct s in shoppingCartProductsNew)
                     {
-                        s.ShoppingCartId = currentShoppingCart.ShoppingCartId;
-                        db.Entry(s).State = EntityState.Modified;
+                        ShoppingCartProduct shoppingCartProduct = new ShoppingCartProduct()
+                        {
+                            ShoppingCart = shoppingCart,
+                            ShoppingCartId = shoppingCart.ShoppingCartId,
+                            ProductId = s.ProductId,
+                            AmountOfProducts = s.AmountOfProducts
+                        };
+                        db.ShoppingCartProducts.Add(shoppingCartProduct);
                         db.SaveChanges();
                     }
                 }
