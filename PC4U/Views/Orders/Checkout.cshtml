@@ -4,6 +4,17 @@
     ViewBag.Title = "Winkelwagen";
 }
 
+<style>
+    #totals tr td {
+        border-top: 0px;
+        width: 0 auto;
+    }
+
+    #totals tr {
+        font-weight: bold;
+    }
+</style>
+
 <h2>Winkelwagen</h2>
 
 <table class="table">
@@ -20,8 +31,6 @@
         <th>
             @Html.DisplayNameFor(model => model.AmountOfProducts)
         </th>
-        <th></th>
-        <th></th>
     </tr>
     @foreach (var item in Model)
     {
@@ -41,10 +50,28 @@
         </tr>
     }
 </table>
+<table id="totals" class="table" style="width:30%;margin-left:70%;">
+    <tr>
+        <td>Totaalbedrag excl. btw</td>
+        <td>@ViewBag.PriceNonVat</td>
+    </tr>
+    <tr>
+        <td>Totaalbedrag incl. btw</td>
+        <td>@ViewBag.PriceVat</td>
+    </tr>
+</table>
 <div class="col-md-12" style="height:50px;">
     @using (Html.BeginForm("Create", "Orders", FormMethod.Post))
     {
         @Html.AntiForgeryToken()
-        <input type="submit" value="Bestellen" class="btn btn-default" style="float:right;margin:10px;" />
+        <div style="float:right; width:200px;">
+            <label for="InvoiceMail">Factuur per e-mail</label>
+            <div class="col-md-1" style="margin-right:10px;">
+                @Html.CheckBox("InvoiceMail", new { htmlAttributes = new { @class = "form-control" } })
+            </div>
+            <div class="col-md-12">
+                <input type="submit" value="Bestellen" class="btn btn-default" />
+            </div>
+        </div>
     }
 </div>

@@ -4,6 +4,17 @@
     ViewBag.Title = "Winkelwagen";
 }
 
+<style>
+    #totals tr td{
+        border-top: 0px;
+        width: 0 auto;
+    }
+
+    #totals tr{
+        font-weight: bold;
+    }
+</style>
+
 <h2>Winkelwagen</h2>
 
 <table class="table">
@@ -58,6 +69,16 @@
             </td>
         </tr>
     }
+</table>
+<table id="totals" class="table" style="width:30%;margin-left:70%;">
+    <tr>
+        <td>Totaalbedrag excl. btw</td>
+        <td>@ViewBag.PriceNonVat</td>
+    </tr>
+    <tr>
+        <td>Totaalbedrag incl. btw</td>
+        <td>@ViewBag.PriceVat</td>
+    </tr>
 </table>
 <div class="col-md-12" style="height:50px;">
     @using (Html.BeginForm("Checkout", "Orders", FormMethod.Post))

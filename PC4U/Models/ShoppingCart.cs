@@ -5,22 +5,20 @@ using System.Web;
 
 namespace PC4U.Models
 {
-    public enum StatusEnum
-    {
-        Unordered,
-        Ordered
-    }
-
     public class ShoppingCart
     {
-        public ShoppingCart()
-        {
-            Status = StatusEnum.Unordered;
-        }
-
         public virtual int ShoppingCartId { get; set; }
         public virtual string UserId { get; set; }
-        public virtual StatusEnum Status { get; set; }
+
+        public virtual List<Product> Products { get; set; }
+        public virtual ApplicationUser User { get; set; }
+    }
+
+    public class OldShoppingCart
+    {
+        public virtual int OldShoppingCartId { get; set; }
+        public virtual int ShoppingCartId { get; set; }
+        public virtual string UserId { get; set; }
 
         public virtual List<Product> Products { get; set; }
         public virtual ApplicationUser User { get; set; }

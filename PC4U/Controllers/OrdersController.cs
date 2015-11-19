@@ -8,6 +8,8 @@ using System.Web;
 using System.Web.Mvc;
 using PC4U.Models;
 using Microsoft.AspNet.Identity;
+using System.IO;
+using System.Net.Mail;
 
 namespace PC4U.Controllers
 {
@@ -48,7 +50,7 @@ namespace PC4U.Controllers
         [Authorize]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create()
+        public ActionResult Create([Bind(Include = "InvoiceMail")] bool invoiceMail)
         {
             var userId = HttpContext.User.Identity.GetUserId();
             var currentUser = db.Users.Where(u => u.Id == userId).FirstOrDefault();
@@ -56,12 +58,67 @@ namespace PC4U.Controllers
             Order order = new Order();
             order.CustomerId = currentUser.Id;
             order.ShoppingCartId = db.ShoppingCarts.Include(s => s.User).Where(s => s.UserId == currentUser.Id).Select(s => s.ShoppingCartId).FirstOrDefault();
-            db.Orders.Add(order);
 
             ShoppingCart shoppingCart = db.ShoppingCarts.Include(s => s.User).Where(s => s.UserId == currentUser.Id).FirstOrDefault();
-            shoppingCart.Status = StatusEnum.Ordered;
 
+            OldShoppingCart oldShoppingCart = new OldShoppingCart()
+            {
+                ShoppingCartId = shoppingCart.ShoppingCartId,
+                UserId = shoppingCart.UserId
+            };
+
+            List<ShoppingCartProduct> shoppingCartProducts = db.ShoppingCartProducts.Include(s => s.Product).Where(s => s.ShoppingCartId == shoppingCart.ShoppingCartId).ToList();
+            decimal priceVat = 0.00M;
+            foreach (ShoppingCartProduct shoppingCartProduct in shoppingCartProducts)
+            {
+                decimal temp = db.Products.Find(shoppingCartProduct.ProductId).Price * shoppingCartProduct.AmountOfProducts;
+                priceVat += temp;
+            }
+            ViewBag.PriceVat = string.Format("{0:C}", priceVat);
+            ViewBag.PriceNonVat = string.Format("{0:C}", (priceVat * 81) / 100);
+
+            db.Orders.Add(order);
+            db.OldShoppingCarts.Add(oldShoppingCart);
+            db.ShoppingCarts.Remove(shoppingCart);
             db.SaveChanges();
+
+            if (invoiceMail)
+            {
+                string relativePath = "~/Views/Orders/CheckoutMail.cshtml";
+                var content = string.Empty;
+                var view = ViewEngines.Engines.FindView(ControllerContext, relativePath, null);
+                foreach(ShoppingCartProduct s in shoppingCartProducts)
+                {
+                    s.Product = db.Products.Find(s.ProductId);
+                }
+                ViewData.Model = shoppingCartProducts;
+                string aanhef = currentUser.Title == 0 ? "heer " : "mevrouw ";
+                ViewBag.Aanhef = aanhef + currentUser.LastName;
+                using (var writer = new StringWriter())
+                {
+                    var context = new ViewContext(ControllerContext, view.View, ViewData, TempData, writer);
+                    view.View.Render(context, writer);
+                    writer.Flush();
+                    content = writer.ToString();
+                }
+
+                MailMessage message = new MailMessage();
+                MailAddress fromAddress = new MailAddress("ycsi@live.nl");
+                message.From = fromAddress;
+                message.To.Add(currentUser.Email);
+                message.Subject = "Factuur";
+                message.IsBodyHtml = true;
+                message.Body = content;
+
+                SmtpClient smtpClient = new SmtpClient();
+                smtpClient.Host = "smtp.live.com";
+                smtpClient.Port = 587;
+                smtpClient.UseDefaultCredentials = false;
+                smtpClient.Credentials = new NetworkCredential
+                ("ycsi@live.nl", "reservering123");
+                smtpClient.EnableSsl = true;
+                smtpClient.Send(message);
+            }
 
             return RedirectToAction("Index", "Store", null);
         }
@@ -75,12 +132,21 @@ namespace PC4U.Controllers
             ShoppingCart shoppingCart = null;
             List<ShoppingCartProduct> shoppingCartProducts = new List<ShoppingCartProduct>();
 
-            shoppingCart = db.ShoppingCarts.Where(s => s.UserId == currentUser && s.Status == StatusEnum.Unordered).FirstOrDefault();
+            shoppingCart = db.ShoppingCarts.Where(s => s.UserId == currentUser).FirstOrDefault();
 
             if (shoppingCart != null)
             {
                 shoppingCartProducts = db.ShoppingCartProducts.Where(s => s.ShoppingCartId == shoppingCart.ShoppingCartId).OrderBy(p => p.ProductId).ToList();
             }
+
+            decimal priceVat = 0.00M;
+            foreach (ShoppingCartProduct shoppingCartProduct in shoppingCartProducts)
+            {
+                decimal temp = db.Products.Find(shoppingCartProduct.ProductId).Price * shoppingCartProduct.AmountOfProducts;
+                priceVat += temp;
+            }
+            ViewBag.PriceVat = string.Format("{0:C}", priceVat);
+            ViewBag.PriceNonVat = string.Format("{0:C}", (priceVat * 81) / 100);
 
             return View(shoppingCartProducts);
         }

@@ -24,7 +24,7 @@ namespace PC4U.Controllers
 
             if (currentUser != null)
             {
-                shoppingCart = db.ShoppingCarts.Where(s => s.UserId == currentUser && s.Status == StatusEnum.Unordered).FirstOrDefault();
+                shoppingCart = db.ShoppingCarts.Where(s => s.UserId == currentUser).FirstOrDefault();
 
                 if(shoppingCart != null)
                 {
@@ -43,10 +43,21 @@ namespace PC4U.Controllers
                 }
             }
 
-            if (shoppingCartProducts == null)
+            if (shoppingCartProducts == null || shoppingCart == null)
             {
                 //TODO: Vervang dit met een melding dat de winkelwagen leeg is.
                 return RedirectToAction("Index", "Store", null);
+            }
+            else
+            {
+                decimal priceVat = 0.00M;
+                foreach(ShoppingCartProduct shoppingCartProduct in shoppingCartProducts)
+                {
+                    decimal temp = db.Products.Find(shoppingCartProduct.ProductId).Price * shoppingCartProduct.AmountOfProducts;
+                    priceVat += temp;
+                }
+                ViewBag.PriceVat = string.Format("{0:C}", priceVat);
+                ViewBag.PriceNonVat = string.Format("{0:C}", (priceVat * 81)/100);
             }
 
             return View(shoppingCartProducts);
@@ -56,74 +67,72 @@ namespace PC4U.Controllers
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
-        public ActionResult AddToCart([Bind(Include = "ShoppingCartId, ProductId, AmountOfProducts")] ShoppingCartProduct shoppingCartProduct)
+        public ActionResult AddToCart([Bind(Include = "ShoppingCartId, ProductId, AmountOfProducts")] ShoppingCartProduct input)
         {
             string currentUser = HttpContext.User.Identity.GetUserId();
 
+            // Als de gebruiker is ingelogd.
             if (currentUser != null)
             {
-                ShoppingCart currentShoppingCart = db.ShoppingCarts.Where(s => s.UserId == currentUser).FirstOrDefault();
+                // Bestaande winkelwagen ophalen.
+                ShoppingCart existingShoppingCart = db.ShoppingCarts.Where(s => s.UserId == currentUser).FirstOrDefault();
 
-                if (currentShoppingCart != null)
+                // Als de gebruiker al een winkelwagen bezit in de database.
+                if (existingShoppingCart != null)
                 {
-                    // Voeg winkelwagen toe aan bestaande winkelwagen.
-                    ShoppingCartProduct currentShoppingCartProduct = new ShoppingCartProduct()
+                    ShoppingCartProduct shoppingCartProduct = new ShoppingCartProduct()
                     {
-                        ShoppingCartId = currentShoppingCart.ShoppingCartId,
-                        ProductId = shoppingCartProduct.ProductId,
-                        AmountOfProducts = shoppingCartProduct.AmountOfProducts
+                        ShoppingCartId = existingShoppingCart.ShoppingCartId,
+                        ProductId = input.ProductId,
+                        AmountOfProducts = input.AmountOfProducts
                     };
 
-                    if (db.ShoppingCartProducts.Where(s => s.ProductId == currentShoppingCartProduct.ProductId && s.ShoppingCartId == currentShoppingCart.ShoppingCartId).Any())
+                    if (db.ShoppingCartProducts.Where(s => s.ProductId == shoppingCartProduct.ProductId && s.ShoppingCartId == existingShoppingCart.ShoppingCartId).Any())
                     {
-                        db.Entry(currentShoppingCartProduct).State = EntityState.Modified;
+                        db.Entry(shoppingCartProduct).State = EntityState.Modified;
                     }
                     else
                     {
-                        db.ShoppingCartProducts.Add(currentShoppingCartProduct);
+                        db.ShoppingCartProducts.Add(shoppingCartProduct);
                     }
                 }
+                // Als de gebruiker nog geen winkelwagen bezit.
                 else
                 {
-                    // Maak een nieuwe winkelwagen aan.
                     ShoppingCart shoppingCart = new ShoppingCart()
                     {
-                        UserId = currentUser,
-                        Products = new List<Product>()
-                        {
-                            db.Products.Find(shoppingCartProduct.ProductId)
-                        }
+                        ShoppingCartId = db.ShoppingCarts.Any() ? db.ShoppingCarts.Max(s => s.ShoppingCartId) : 1,
+                        UserId = currentUser
+                    };
+
+                    ShoppingCartProduct shoppingCartProduct = new ShoppingCartProduct()
+                    {
+                        ShoppingCart = shoppingCart,
+                        ShoppingCartId = shoppingCart.ShoppingCartId,
+                        ProductId = input.ProductId,
+                        AmountOfProducts = input.AmountOfProducts
                     };
                     db.ShoppingCarts.Add(shoppingCart);
-                    db.SaveChanges();
-
-                    currentShoppingCart = db.ShoppingCarts.Where(s => s.UserId == currentUser).FirstOrDefault();
-
-                    ShoppingCartProduct currentShoppingCartProduct = new ShoppingCartProduct()
-                    {
-                        ShoppingCartId = currentShoppingCart.ShoppingCartId,
-                        ProductId = shoppingCartProduct.ProductId,
-                        AmountOfProducts = shoppingCartProduct.AmountOfProducts
-                    };
-                    db.Entry(currentShoppingCartProduct).State = EntityState.Modified;
+                    db.ShoppingCartProducts.Add(shoppingCartProduct);
                 }
                 db.SaveChanges();
             }
+            // Als de gebruiker niet is ingelogt.
             else
             {
                 List<ShoppingCartProduct> shoppingCartProducts = new List<ShoppingCartProduct>();
                 var temp = (List<ShoppingCartProduct>)Session["ShoppingCart"];
                 if (Session["ShoppingCart"] == null || temp.Count == 0)
                 {
-                    shoppingCartProducts.Add(shoppingCartProduct);
+                    shoppingCartProducts.Add(input);
                     Session["ShoppingCart"] = shoppingCartProducts;
                 }
                 else
                 {
                     shoppingCartProducts.AddRange((List<ShoppingCartProduct>)Session["ShoppingCart"]);
-                    if (!shoppingCartProducts.Where(s => s.ProductId == shoppingCartProduct.ProductId).Any())
+                    if (!shoppingCartProducts.Where(s => s.ProductId == input.ProductId).Any())
                     {
-                        shoppingCartProducts.Add(shoppingCartProduct);
+                        shoppingCartProducts.Add(input);
                     }
                     Session["ShoppingCart"] = shoppingCartProducts;
                 }

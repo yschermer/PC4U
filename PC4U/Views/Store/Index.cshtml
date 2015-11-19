@@ -12,8 +12,12 @@
         <div class="list-group">
             @foreach (var item in ViewBag.Categories as List<PC4U.Models.Category>)
             {
-                @Html.ActionLink(item.CategoryName, "Categories", new { categoryId = item.CategoryId }, new { @class = "list-group-item" });
+                @Html.ActionLink(item.CategoryName, "Sort", new { categoryId = item.CategoryId }, new { @class = "list-group-item" });
             }
+        </div>
+        <div class="list-group">
+            @Html.ActionLink("Prijs oplopend", "Sort", new { sort = "Asc" }, new { @class = "list-group-item" })
+            @Html.ActionLink("Prijs aflopend", "Sort", new { sort = "Desc" }, new { @class = "list-group-item" })
         </div>
     </div>
 

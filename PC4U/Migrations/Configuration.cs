@@ -51,7 +51,7 @@ namespace PC4U.Migrations
                 {
                     UserName = "brian@test.nl",
                     Email = "brian@test.nl",
-                    PasswordHash = HashPassword("Horizon123!"),
+                    PasswordHash = PC4U.Helpers.CustomConverter.HashPassword("Horizon123!"),
                     SecurityStamp = "7516ab5e-7279-4b32-9777-388c35dd5e9a",
                     Title = TitleEnum.Man,
                     FirstName = "Brian",
@@ -68,7 +68,7 @@ namespace PC4U.Migrations
                 {
                     UserName = "larissa@test.nl",
                     Email = "larissa@test.nl",
-                    PasswordHash = HashPassword("Horizon123!"),
+                    PasswordHash = PC4U.Helpers.CustomConverter.HashPassword("Horizon123!"),
                     SecurityStamp = "7516ab5e-7279-4b32-9777-388c35dd5e9a",
                     Title = TitleEnum.Vrouw,
                     FirstName = "Larissa",
@@ -85,7 +85,7 @@ namespace PC4U.Migrations
                 {
                     UserName = "yoshio@test.nl",
                     Email = "yoshio@test.nl",
-                    PasswordHash = HashPassword("Horizon123!"),
+                    PasswordHash = PC4U.Helpers.CustomConverter.HashPassword("Horizon123!"),
                     SecurityStamp = "7516ab5e-7279-4b32-9777-388c35dd5e9a",
                     Title = TitleEnum.Man,
                     FirstName = "Yoshio",
@@ -110,7 +110,7 @@ namespace PC4U.Migrations
             categories.ForEach(category => context.Categories.AddOrUpdate(property => property.CategoryName, category));
             products.ForEach(product => context.Products.AddOrUpdate(property => property.ProductName, product));
 
-            /* Comment dit uit wanneer je update-database heb uitgevoerd en doe vervolgens update-database opnieuw.
+            // Comment dit uit wanneer je update-database heb uitgevoerd en doe vervolgens update-database opnieuw.
             string[] userIds =
             {
                 context.Users.Where(user => user.FirstName == "Brian").FirstOrDefault().Id,
@@ -123,26 +123,7 @@ namespace PC4U.Migrations
             {
                 UserManager.AddToRole(userId, context.Roles.FirstOrDefault().Name);
             }
-            */
-        }
 
-        private string HashPassword(string password)
-        {
-            byte[] salt;
-            byte[] buffer2;
-            if (password == null)
-            {
-                throw new ArgumentNullException("password");
-            }
-            using (Rfc2898DeriveBytes bytes = new Rfc2898DeriveBytes(password, 0x10, 0x3e8))
-            {
-                salt = bytes.Salt;
-                buffer2 = bytes.GetBytes(0x20);
-            }
-            byte[] dst = new byte[0x31];
-            Buffer.BlockCopy(salt, 0, dst, 1, 0x10);
-            Buffer.BlockCopy(buffer2, 0, dst, 0x11, 0x20);
-            return Convert.ToBase64String(dst);
         }
     }
 }
