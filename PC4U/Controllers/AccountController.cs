@@ -72,16 +72,23 @@ namespace PC4U.Controllers
         public async Task<ActionResult> Login(LoginViewModel model, string returnUrl)
         {
             ApplicationDbContext db = new ApplicationDbContext();
-            string userName = db.Users.Where(u => u.Email == model.Email).FirstOrDefault().UserName;
+            ApplicationUser user = db.Users.Where(u => u.Email == model.Email).FirstOrDefault();
 
             // This doesn't count login failures towards account lockout
             // To enable password failures to trigger account lockout, change to shouldLockout: true
-            var result = await SignInManager.PasswordSignInAsync(userName, model.Password, model.RememberMe, shouldLockout: false);
+            var result = await SignInManager.PasswordSignInAsync(user.UserName, model.Password, model.RememberMe, shouldLockout: false);
             switch (result)
             {
                 case SignInStatus.Success:
                     AddCartToUser(model.Email);
-                    return RedirectToLocal(returnUrl);
+                    if(user.Roles.Any())
+                    {
+                        return RedirectToAction("Index", "Products", null);
+                    }
+                    else
+                    {
+                        return RedirectToLocal(returnUrl);
+                    }
                 case SignInStatus.LockedOut:
                     return View("Lockout");
                 case SignInStatus.RequiresVerification:

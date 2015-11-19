@@ -30,6 +30,10 @@ namespace PC4U.Controllers
                 {
                     shoppingCartProducts = db.ShoppingCartProducts.Where(s => s.ShoppingCartId == shoppingCart.ShoppingCartId).OrderBy(p => p.ProductId).ToList();
                 }
+                else
+                {
+                    return RedirectToAction("Index", "Store", null);
+                }
             }
             else
             {
@@ -43,7 +47,7 @@ namespace PC4U.Controllers
                 }
             }
 
-            if (shoppingCartProducts == null || shoppingCart == null)
+            if (shoppingCartProducts == null)
             {
                 //TODO: Vervang dit met een melding dat de winkelwagen leeg is.
                 return RedirectToAction("Index", "Store", null);
@@ -57,7 +61,8 @@ namespace PC4U.Controllers
                     priceVat += temp;
                 }
                 ViewBag.PriceVat = string.Format("{0:C}", priceVat);
-                ViewBag.PriceNonVat = string.Format("{0:C}", (priceVat * 81)/100);
+                ViewBag.Vat = string.Format("{0:C}", (priceVat * 21) / 100);
+                ViewBag.PriceNonVat = string.Format("{0:C}", (priceVat * 79) / 100);
             }
 
             return View(shoppingCartProducts);

@@ -75,7 +75,8 @@ namespace PC4U.Controllers
                 priceVat += temp;
             }
             ViewBag.PriceVat = string.Format("{0:C}", priceVat);
-            ViewBag.PriceNonVat = string.Format("{0:C}", (priceVat * 81) / 100);
+            ViewBag.Vat = string.Format("{0:C}", (priceVat * 21) / 100);
+            ViewBag.PriceNonVat = string.Format("{0:C}", (priceVat * 79) / 100);
 
             db.Orders.Add(order);
             db.OldShoppingCarts.Add(oldShoppingCart);
