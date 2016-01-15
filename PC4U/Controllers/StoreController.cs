@@ -9,6 +9,7 @@ using System.Web.Mvc;
 using PC4U.Models;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
+using PagedList;
 
 namespace PC4U.Controllers
 {
@@ -17,7 +18,7 @@ namespace PC4U.Controllers
         private ApplicationDbContext db = new ApplicationDbContext();
 
         // GET: Store
-        public ActionResult Index()
+        public ActionResult Index(int? page)
         {
             var products = db.Products.ToList();
 
@@ -28,7 +29,9 @@ namespace PC4U.Controllers
 
             ViewBag.Categories = db.Categories.ToList();
 
-            return View(products);
+            int currentPageIndex = page.HasValue ? page.Value : 1;
+            int DefaultPageSize = 2;
+            return View(products.ToPagedList(currentPageIndex, (int)DefaultPageSize));
         }
 
         // GET: Store/Details/5
@@ -67,6 +70,7 @@ namespace PC4U.Controllers
         // GET: Store/Sort?categoryId=1&sort=Asc
         public ActionResult Sort(int? categoryId, string sort)
         {
+
             string[] sortings = { "Asc", "Desc" };
             List<Product> products = new List<Product>();
 
@@ -98,7 +102,8 @@ namespace PC4U.Controllers
 
             ViewBag.Categories = db.Categories.ToList();
 
-            return View("Index", products);
+            //return View("Index", products);
+            return View("Index", products.ToList());
         }
     }
 }
