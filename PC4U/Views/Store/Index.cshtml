@@ -1,4 +1,6 @@
-﻿@model IEnumerable<PC4U.Models.Product>
+﻿@model PagedList<PC4U.Models.Product>
+@using PagedList.Mvc
+@using PagedList
 
 @{
     ViewBag.Title = "Index";
@@ -81,3 +83,11 @@
         </div>
     </div>
 </div>
+@section Paging{
+    <div class="col-sm-12" style="margin-bottom:100px;">
+        <div style="display:inline-block; float:right; text-align:right">
+            @Html.PagedListPager(Model, page => Url.Action("Index", new { page, pageSize = Model.PageSize }))
+            Showing @Model.FirstItemOnPage to @Model.LastItemOnPage of @Model.TotalItemCount products
+        </div>
+    </div>
+}

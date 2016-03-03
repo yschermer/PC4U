@@ -116,7 +116,7 @@ namespace PC4U.Controllers
                 smtpClient.Port = 587;
                 smtpClient.UseDefaultCredentials = false;
                 smtpClient.Credentials = new NetworkCredential
-                ("ycsi@live.nl", "reservering123");
+                ("emailadres", "wachtwoord");
                 smtpClient.EnableSsl = true;
                 smtpClient.Send(message);
             }
@@ -147,7 +147,8 @@ namespace PC4U.Controllers
                 priceVat += temp;
             }
             ViewBag.PriceVat = string.Format("{0:C}", priceVat);
-            ViewBag.PriceNonVat = string.Format("{0:C}", (priceVat * 81) / 100);
+            ViewBag.Vat = string.Format("{0:C}", (priceVat * 21) / 100);
+            ViewBag.PriceNonVat = string.Format("{0:C}", (priceVat * 79) / 100);
 
             return View(shoppingCartProducts);
         }
