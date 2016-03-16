@@ -509,58 +509,60 @@ namespace PC4U.Controllers
 
         private void AddCartToUser(string email)
         {
-            if (Session["ShoppingCart"] != null)
+            // Check if the user has a cart in cache
+            if (Session["Cart"] != null)
             {
                 ApplicationDbContext db = new ApplicationDbContext();
-                string currentUserId = db.Users.Where(u => u.Email == email).FirstOrDefault().Id;
 
-                ShoppingCart currentShoppingCart = new ShoppingCart();
-                currentShoppingCart = db.ShoppingCarts.Include(s => s.User).Where(s => s.UserId == currentUserId).FirstOrDefault();
-                List<ShoppingCartProduct> shoppingCartProductsNew = (List<ShoppingCartProduct>)Session["ShoppingCart"];
+                var user = db.Users.Where(u => u.Email == email).FirstOrDefault();
+         
+                Cart currentCart = db.Carts.Include(c => c.User).Where(c => c.UserId == user.Id && c.Status == StatusEnum.PENDING).FirstOrDefault();
+                List<CartProduct> cachedCartProducts = (List<CartProduct>)Session["Cart"];
 
-                if (currentShoppingCart != null)
+                // Checks if the user already has a cart
+                if (currentCart != null)
                 {
-                    List<ShoppingCartProduct> shoppingCartProducts = db.ShoppingCartProducts.Where(s => s.ShoppingCartId == currentShoppingCart.ShoppingCartId).ToList();
-
-                    // Voeg winkelwagen toe aan huidige.
-                    foreach (ShoppingCartProduct s in shoppingCartProductsNew)
+                    // Add products to existing cart
+                    List<CartProduct> cartProducts = db.CartProducts.Where(c => c.CartId == currentCart.CartId).ToList();
+                    foreach (CartProduct cart in cachedCartProducts)
                     {
-                        s.ShoppingCartId = currentShoppingCart.ShoppingCartId;
-                        s.Product = null;
-                        var shoppingCartProductToRemove = shoppingCartProducts.Where(scp => scp.ProductId == s.ProductId).FirstOrDefault();
-                        if (shoppingCartProductToRemove != null)
+                        cart.CartId = currentCart.CartId;
+                        cart.Product = null;
+                        var cartProductToRemove = cartProducts.Where(c => c.ProductId == cart.ProductId).FirstOrDefault();
+                        if (cartProductToRemove != null)
                         {
-                            db.ShoppingCartProducts.Remove(shoppingCartProductToRemove);
+                            db.CartProducts.Remove(cartProductToRemove);
                             db.SaveChanges();
                         }
-                        db.ShoppingCartProducts.Add(s);
+                        db.CartProducts.Add(cart);
                         db.SaveChanges();
                     }
                 }
                 else
                 {
-                    // Voeg winkelwagen toe.
-                    int latestShoppingCartId = db.ShoppingCarts.Any() ? db.ShoppingCarts.Max(s => s.ShoppingCartId) : 1;
-                    ShoppingCart shoppingCart = new ShoppingCart()
+                    // Create a new cart
+                    int latestCartId = db.Carts.Any() ? db.Carts.Max(c => c.CartId) : 1;
+                    Cart cart = new Cart()
                     {
-                        ShoppingCartId = latestShoppingCartId + 1,
-                        UserId = currentUserId
+                        CartId = latestCartId + 1,
+                        UserId = user.Id
                     };
 
-                    foreach (ShoppingCartProduct s in shoppingCartProductsNew)
+                    // Add products to the new cart
+                    foreach (CartProduct cartProduct in cachedCartProducts)
                     {
-                        ShoppingCartProduct shoppingCartProduct = new ShoppingCartProduct()
+                        db.CartProducts.Add(new CartProduct()
                         {
-                            ShoppingCart = shoppingCart,
-                            ShoppingCartId = shoppingCart.ShoppingCartId,
-                            ProductId = s.ProductId,
-                            AmountOfProducts = s.AmountOfProducts
-                        };
-                        db.ShoppingCartProducts.Add(shoppingCartProduct);
+                            Cart = cart,
+                            CartId = cart.CartId,
+                            ProductId = cartProduct.ProductId,
+                            AmountOfProducts = cartProduct.AmountOfProducts
+                        });
                         db.SaveChanges();
                     }
                 }
-                Session["ShoppingCart"] = null;
+                // Empty the session, because the cart has been stored in database.
+                Session["Cart"] = null;
             }
         }
         #endregion

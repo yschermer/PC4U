@@ -32,7 +32,7 @@ namespace PC4U.Migrations
             {
                 new ApplicationUser
                 {
-                    UserName = "Administrator",
+                    UserName = "Tester",
                     Email = "admin@admin.nl",
                     SecurityStamp = "7516ab5e-7279-4b32-9777-388c35dd5e9a",
                     Title = TitleEnum.MALE,

@@ -4,7 +4,7 @@
     ViewBag.Title = "Details";
 }
 
-@using (Html.BeginForm("Create", "ShoppingCarts", FormMethod.Post))
+@using (Html.BeginForm("AddToCart", "Carts", FormMethod.Post))
 {
     <div style="margin-top:20px;">
         @Html.ActionLink("Back to List", "Index")

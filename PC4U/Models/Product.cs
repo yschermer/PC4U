@@ -22,7 +22,7 @@ namespace PC4U.Models
 
         [Display(Name = "Image")]
         public virtual List<Image> Image { get; set; }
-        public virtual List<ShoppingCart> ShoppingCarts { get; set; }
+        public virtual List<Cart> Carts { get; set; }
         public virtual Category Category { get; set; }
     }
 

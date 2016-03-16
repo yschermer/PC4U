@@ -55,12 +55,12 @@ namespace PC4U.Helpers
             return byteArray != null ? Convert.ToBase64String(byteArray) : string.Empty;
         }
 
-        public static decimal GetTotalPrice(List<ShoppingCartProduct> shoppingCartProducts, ApplicationDbContext db)
+        public static decimal GetTotalPrice(List<CartProduct> cartProducts, ApplicationDbContext db)
         {
             decimal priceVat = 0.00M;
-            foreach (ShoppingCartProduct shoppingCartProduct in shoppingCartProducts)
+            foreach (CartProduct cartProduct in cartProducts)
             {
-                decimal temp = db.Products.Find(shoppingCartProduct.ProductId).Price * shoppingCartProduct.AmountOfProducts;
+                decimal temp = db.Products.Find(cartProduct.ProductId).Price * cartProduct.AmountOfProducts;
                 priceVat += temp;
             }
             return priceVat;
