@@ -9,17 +9,22 @@ using System.ComponentModel.DataAnnotations;
 
 namespace PC4U.Models
 {
+    public enum StatusEnum
+    {
+        PENDING = 0,
+        PAID = 1
+    }
+
     public enum TitleEnum
     {
-        Man,
-        Vrouw
+        MALE = 0,
+        FEMALE = 1
     }
 
     public class ApplicationUser : IdentityUser
     {
         public virtual TitleEnum Title { get; set; }
         public virtual string FirstName { get; set; }
-        public virtual string Insertion { get; set; }
         public virtual string LastName { get; set; }
         public virtual string Country { get; set; }
         public virtual string PostalCode { get; set; }
@@ -45,9 +50,7 @@ namespace PC4U.Models
         public DbSet<Image> Images { get; set; }
         public DbSet<Category> Categories { get; set; }
         public DbSet<ShoppingCart> ShoppingCarts { get; set; }
-        public DbSet<OldShoppingCart> OldShoppingCarts { get; set; }
         public DbSet<ShoppingCartProduct> ShoppingCartProducts { get; set; }
-        public DbSet<Order> Orders { get; set; }
 
         public ApplicationDbContext()
             : base("DefaultConnection", throwIfV1Schema: false)

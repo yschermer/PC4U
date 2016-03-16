@@ -43,7 +43,7 @@
             @{
                 foreach (PC4U.Models.Image image in item.Image)
                 {
-                    <img src="data:image/jpg;base64,@PC4U.Helpers.CustomConverter.ConvertByteArrayToString(image.EncodedImage)" width="80" height="80" />
+                    <img src="data:image/jpg;base64,@PC4U.Helpers.Helper.ConvertByteArrayToString(image.EncodedImage)" width="80" height="80" />
                 }
             }
         </td>

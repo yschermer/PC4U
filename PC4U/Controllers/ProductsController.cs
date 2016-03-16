@@ -31,12 +31,10 @@ namespace PC4U.Controllers
         }
 
         // POST: Products/Create
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Create([Bind(Include = "Product, Images, SelectedImages")] ProductCreateEditViewModel productCreateViewModel)
-        {   
+        {
             if (ModelState.IsValid)
             {
                 db.Products.Add(productCreateViewModel.Product);
@@ -47,16 +45,14 @@ namespace PC4U.Controllers
                     foreach (var image in productCreateViewModel.Images)
                     {
                         Image imageObject = new Image();
-                        imageObject.EncodedImage = CustomConverter.ConvertHttpPostedFileBaseToByteArray(image);
+                        imageObject.EncodedImage = Helper.ConvertHttpPostedFileBaseToByteArray(image);
                         imageObject.ProductId = productCreateViewModel.Product.ProductId;
                         db.Images.Add(imageObject);
                     }
                     db.SaveChanges();
                 }
-
                 return RedirectToAction("Index");
             }
-
             return View(productCreateViewModel);
         }
 
@@ -76,47 +72,43 @@ namespace PC4U.Controllers
                 return HttpNotFound();
             }
 
-            ViewBag.Categories = new SelectList(db.Categories.OrderBy(g => g.CategoryName),"CategoryId", "CategoryName", productEditViewModel.Product.CategoryId);
+            ViewBag.Categories = new SelectList(db.Categories.OrderBy(g => g.CategoryName), "CategoryId", "CategoryName", productEditViewModel.Product.CategoryId);
 
             return View(productEditViewModel);
         }
 
         // POST: Products/Edit/5
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Edit([Bind(Include = "Product, Images, SelectedImages")] ProductCreateEditViewModel productEditViewModel)
         {
-            if (ModelState.IsValid)
+            db.Entry(productEditViewModel.Product).State = EntityState.Modified;
+            db.SaveChanges();
+
+            if (productEditViewModel.Images != null && productEditViewModel.Images[0] != null)
             {
-                db.Entry(productEditViewModel.Product).State = EntityState.Modified;
-                db.SaveChanges();
-
-                if (productEditViewModel.Images != null && productEditViewModel.Images[0] != null)
+                foreach (var image in productEditViewModel.Images)
                 {
-                    foreach (var image in productEditViewModel.Images)
-                    {
-                        Image imageInstance = new Image();
-                        imageInstance.EncodedImage = CustomConverter.ConvertHttpPostedFileBaseToByteArray(image);
-                        imageInstance.ProductId = productEditViewModel.Product.ProductId;
-                        db.Images.Add(imageInstance);
-                        db.SaveChanges();
-                    }
+                    Image imageInstance = new Image();
+                    imageInstance.EncodedImage = Helper.ConvertHttpPostedFileBaseToByteArray(image);
+                    imageInstance.ProductId = productEditViewModel.Product.ProductId;
+                    db.Images.Add(imageInstance);
+                    db.SaveChanges();
                 }
-
-                if(productEditViewModel.SelectedImages != null)
-                {
-                    foreach (int imageId in productEditViewModel.SelectedImages)
-                    {
-                        Image imageInstance = db.Images.Find(imageId);
-                        db.Images.Remove(imageInstance);
-                        db.SaveChanges();
-                    }
-                }
-
-                return RedirectToAction("Index");
             }
+
+            if (productEditViewModel.SelectedImages != null)
+            {
+                foreach (int imageId in productEditViewModel.SelectedImages)
+                {
+                    Image imageInstance = db.Images.Find(imageId);
+                    db.Images.Remove(imageInstance);
+                    db.SaveChanges();
+                }
+            }
+            return RedirectToAction("Index");
+
+            ViewBag.Categories = new SelectList(db.Categories.OrderBy(g => g.CategoryName), "CategoryId", "CategoryName", productEditViewModel.Product.CategoryId);
             return View(productEditViewModel);
         }
 

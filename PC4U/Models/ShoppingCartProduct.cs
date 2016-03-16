@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Web;
 
 namespace PC4U.Models
 {
@@ -22,7 +17,8 @@ namespace PC4U.Models
         public virtual int ProductId { get; set; }
 
         [Required]
-        [Display(Name = "Aantal")]
+        [Display(Name = "Amount")]
+        [Range(1, 1000, ErrorMessage = "The amount cannot be lower than 1 and more than 1000.")]
         public virtual int AmountOfProducts { get; set; }
 
         public virtual ShoppingCart ShoppingCart { get; set; }

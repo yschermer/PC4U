@@ -166,7 +166,6 @@ namespace PC4U.Controllers
                     Email = model.Email,
                     Title = model.Title,
                     FirstName = model.FirstName,
-                    Insertion = model.Insertion,
                     LastName = model.LastName,
                     Country = model.Country,
                     PostalCode = model.PostalCode,

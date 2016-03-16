@@ -1,28 +1,26 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
 using System.Web;
 
 namespace PC4U.Models
 {
     public class Product
     {
-        const string VERPLICHT = "Dit veld is verplicht.";
+        const string REQUIRED_TEXT = "This field is required.";
 
         public virtual int ProductId { get; set; }
         public virtual int CategoryId { get; set; }
 
-        [Required(ErrorMessage = VERPLICHT)]
-        [Display(Name = "Artikel")]
+        [Required(ErrorMessage = REQUIRED_TEXT)]
+        [Display(Name = "Product")]
         public virtual string ProductName { get; set; }
 
-        [Required(ErrorMessage = VERPLICHT)]
+        [Required(ErrorMessage = REQUIRED_TEXT)]
         [DataType(DataType.Currency)]
-        [Display(Name = "Prijs")]
+        [Display(Name = "Price")]
         public virtual decimal Price { get; set; }
 
-        [Display(Name = "Afbeelding")]
+        [Display(Name = "Image")]
         public virtual List<Image> Image { get; set; }
         public virtual List<ShoppingCart> ShoppingCarts { get; set; }
         public virtual Category Category { get; set; }

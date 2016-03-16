@@ -4,12 +4,6 @@ using System.ComponentModel.DataAnnotations;
 
 namespace PC4U.Models
 {
-    public enum Title
-    {
-        Man,
-        Vrouw
-    }
-
     public class ExternalLoginConfirmationViewModel
     {
         [Required]
@@ -49,116 +43,112 @@ namespace PC4U.Models
     public class ForgotViewModel
     {
         [Required]
-        [Display(Name = "Emailadres")]
+        [Display(Name = "Emailaddress")]
         public string Email { get; set; }
     }
 
     public class LoginViewModel
     {
         [Required]
-        [Display(Name = "Emailadres")]
+        [Display(Name = "Emailaddress")]
         [EmailAddress]
         public string Email { get; set; }
 
         [Required]
         [DataType(DataType.Password)]
-        [Display(Name = "Wachtwoord")]
+        [Display(Name = "Password")]
         public string Password { get; set; }
 
-        [Display(Name = "Onthoud mij?")]
+        [Display(Name = "Remember me?")]
         public bool RememberMe { get; set; }
     }
 
     public class RegisterViewModel
     {
-        const string VERPLICHT = "Dit veld is verplicht.";
+        const string REQUIRED_TEXT = "This field is required.";
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
-            if (Title != TitleEnum.Man && Title != TitleEnum.Vrouw)
+            if (Title != TitleEnum.MALE && Title != TitleEnum.FEMALE)
             {
-                yield return new ValidationResult("De aanhef is vereist.", new[] { "Title" });
+                yield return new ValidationResult(REQUIRED_TEXT, new[] { "Title" });
             }
 
             if (DateTime.Now.Year - BirthDate.Year < 18)
             {
-                yield return new ValidationResult("U moet 18 of ouder zijn.", new[] { "BirthDate" });
+                yield return new ValidationResult("You must be above 18 years old.", new[] { "BirthDate" });
             }
         }
 
-        [Required(ErrorMessage = VERPLICHT)]
-        [Display(Name = "Aanhef")]
+        [Required(ErrorMessage = REQUIRED_TEXT)]
+        [Display(Name = "Title")]
         public virtual TitleEnum Title { get; set; }
 
-        [Required(ErrorMessage = VERPLICHT)]
-        [StringLength(50, ErrorMessage = "Dit veld mag niet minder dan 2 of meer dan 50 karakters bevatten.", MinimumLength = 2)]
-        [Display(Name = "Voornaam")]
+        [Required(ErrorMessage = REQUIRED_TEXT)]
+        [StringLength(50, ErrorMessage = "This field may not contain less than 2 and more than 50 characters.", MinimumLength = 2)]
+        [Display(Name = "First name")]
         public virtual string FirstName { get; set; }
 
-        [StringLength(10, ErrorMessage = "Dit veld mag niet meer dan 10 karakters bevatten.")]
-        [Display(Name = "Tussenvoegsel")]
-        public virtual string Insertion { get; set; }
-
-        [Required(ErrorMessage = VERPLICHT)]
-        [StringLength(50, ErrorMessage = "Dit veld mag niet minder dan 2 of meer dan 50 karakters bevatten.", MinimumLength = 2)]
-        [Display(Name = "Achternaam")]
+        [Required(ErrorMessage = REQUIRED_TEXT)]
+        [StringLength(50, ErrorMessage = "This field may not contain less than 2 and more than 50 characters.", MinimumLength = 2)]
+        [Display(Name = "Last name")]
         public virtual string LastName { get; set; }
 
-        [Required(ErrorMessage = VERPLICHT)]
-        [Display(Name = "Land")]
+        [Required(ErrorMessage = REQUIRED_TEXT)]
+        [Display(Name = "Country")]
         public virtual string Country { get; set; }
 
-        [Required(ErrorMessage = VERPLICHT)]
-        [StringLength(10, ErrorMessage = "Dit veld mag niet minder dan 6 of meer dan 10 karakters bevatten.", MinimumLength = 6)]
+        [Required(ErrorMessage = REQUIRED_TEXT)]
+        [StringLength(10, ErrorMessage = "This field may not contain less than 6 and more than 10 characters.", MinimumLength = 6)]
         [DataType(DataType.PostalCode)]
-        [Display(Name = "Postcode")]
+        [Display(Name = "Postal code")]
         public virtual string PostalCode { get; set; }
 
-        [Required(ErrorMessage = VERPLICHT)]
-        [Display(Name = "Huisnummer")]
+        [Required(ErrorMessage = REQUIRED_TEXT)]
+        [Display(Name = "Housenumber")]
         public virtual int HouseNumber { get; set; }
 
-        [StringLength(20, ErrorMessage = "Dit veld mag niet meer dan 20 karakters bevatten.")]
-        [Display(Name = "Huisnummertoevoeging")]
+        [StringLength(10, ErrorMessage = "This field may not contain more than 10 characters.")]
+        [Display(Name = "Housenumber suffix")]
         public virtual string HouseNumberExtension { get; set; }
 
-        [Required(ErrorMessage = VERPLICHT)]
-        [StringLength(50, ErrorMessage = "Dit veld mag niet minder dan 2 of meer dan 50 karakters bevatten.", MinimumLength = 2)]
-        [Display(Name = "Straat")]
+        [Required(ErrorMessage = REQUIRED_TEXT)]
+        [StringLength(50, ErrorMessage = "This field may not contain less than 2 and more than 50 characters.", MinimumLength = 2)]
+        [Display(Name = "Street")]
         public virtual string Street { get; set; }
 
-        [Required(ErrorMessage = VERPLICHT)]
-        [StringLength(100, ErrorMessage = "Dit veld mag niet minder dan 6 of meer dan 100 karakters bevatten.", MinimumLength = 6)]
-        [Display(Name = "Woonplaats")]
+        [Required(ErrorMessage = REQUIRED_TEXT)]
+        [StringLength(100, ErrorMessage = "This field may not contain less than 6 and more than 100 characters.", MinimumLength = 6)]
+        [Display(Name = "City")]
         public virtual string City { get; set; }
 
-        [Required(ErrorMessage = VERPLICHT)]
+        [Required(ErrorMessage = REQUIRED_TEXT)]
         [DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:MM/dd/yyyy}")]
-        [Display(Name = "Geboortedatum")]
+        [Display(Name = "Date of birth")]
         [DataType(DataType.Date)]
         public virtual DateTime BirthDate { get; set; }
 
-        [Required(ErrorMessage = VERPLICHT)]
-        [StringLength(20, ErrorMessage = "Dit veld mag niet minder dan 7 of meer dan 20 karakters bevatten.", MinimumLength = 7)]
+        [Required(ErrorMessage = REQUIRED_TEXT)]
+        [StringLength(20, ErrorMessage = "This field may not contain less than 7 and more than 20 characters.", MinimumLength = 7)]
         [DataType(DataType.PhoneNumber)]
-        [Display(Name = "Telefoonnummer")]
+        [Display(Name = "Phonenumber")]
         public virtual string TelephoneNumber { get; set; }
 
-        [Required(ErrorMessage = VERPLICHT)]
+        [Required(ErrorMessage = REQUIRED_TEXT)]
         [EmailAddress]
-        [Display(Name = "Emailadres")]
+        [Display(Name = "Emailaddress")]
         public string Email { get; set; }
 
-        [Required(ErrorMessage = VERPLICHT)]
-        [StringLength(50, ErrorMessage = "Uw wachtwoord mag niet minder dan 6 of meer dan 50 karakters bevatten.", MinimumLength = 6)]
+        [Required(ErrorMessage = REQUIRED_TEXT)]
+        [StringLength(50, ErrorMessage = "This field may not contain less than 6 and more than 50 characters.", MinimumLength = 6)]
         [DataType(DataType.Password)]
-        [Display(Name = "Wachtwoord")]
+        [Display(Name = "Password")]
         public string Password { get; set; }
 
-        [Required(ErrorMessage = VERPLICHT)]
+        [Required(ErrorMessage = REQUIRED_TEXT)]
         [DataType(DataType.Password)]
-        [Display(Name = "Bevestig wachtwoord")]
-        [Compare("Password", ErrorMessage = "De wachtwoorden komen niet met elkaar overeen.")]
+        [Display(Name = "Confirm password")]
+        [Compare("Password", ErrorMessage = "The passwords do not match.")]
         public string ConfirmPassword { get; set; }
     }
 
@@ -166,18 +156,18 @@ namespace PC4U.Models
     {
         [Required]
         [EmailAddress]
-        [Display(Name = "Emailadres")]
+        [Display(Name = "Emailaddress")]
         public string Email { get; set; }
 
         [Required]
-        [StringLength(100, ErrorMessage = "Uw wachtwoord mag niet minder dan 6 of meer dan 50 karakters bevatten.", MinimumLength = 6)]
+        [StringLength(50, ErrorMessage = "This field may not contain less than 6 and more than 50 characters.", MinimumLength = 6)]
         [DataType(DataType.Password)]
-        [Display(Name = "Wachtwoord")]
+        [Display(Name = "Password")]
         public string Password { get; set; }
 
         [DataType(DataType.Password)]
-        [Display(Name = "Bevestig wachtwoord")]
-        [Compare("Password", ErrorMessage = "De wachtwoorden komen niet met elkaar overeen.")]
+        [Display(Name = "Confirm password")]
+        [Compare("Password", ErrorMessage = "The passwords do not match.")]
         public string ConfirmPassword { get; set; }
 
         public string Code { get; set; }
@@ -187,7 +177,7 @@ namespace PC4U.Models
     {
         [Required]
         [EmailAddress]
-        [Display(Name = "Emailadres")]
+        [Display(Name = "Emailaddress")]
         public string Email { get; set; }
     }
 }

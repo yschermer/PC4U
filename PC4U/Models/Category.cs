@@ -8,12 +8,10 @@ namespace PC4U.Models
 {
     public class Category
     {
-        const string VERPLICHT = "Dit veld is verplicht.";
-
         public virtual int CategoryId { get; set; }
 
-        [Required(ErrorMessage = VERPLICHT)]
-        [Display(Name = "Categorie")]
+        [Required(ErrorMessage = "This field is required.")]
+        [Display(Name = "Category")]
         public virtual string CategoryName { get; set; }
 
         public virtual List<Product> Product { get; set; }

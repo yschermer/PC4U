@@ -14,12 +14,12 @@
         <div class="list-group">
             @foreach (var item in ViewBag.Categories as List<PC4U.Models.Category>)
             {
-                @Html.ActionLink(item.CategoryName, "Sort", new { categoryId = item.CategoryId }, new { @class = "list-group-item" });
+                @Html.ActionLink(item.CategoryName, "Index", new { categoryId = item.CategoryId, order = Request.QueryString["sort"] }, new { @class = "list-group-item" });
             }
         </div>
         <div class="list-group">
-            @Html.ActionLink("Prijs oplopend", "Sort", new { sort = "Asc" }, new { @class = "list-group-item" })
-            @Html.ActionLink("Prijs aflopend", "Sort", new { sort = "Desc" }, new { @class = "list-group-item" })
+            @Html.ActionLink("Price ascending", "Index", new { categoryId = Request.QueryString["categoryId"], order = "Asc" }, new { @class = "list-group-item" })
+            @Html.ActionLink("Price descending", "Index", new { categoryId = Request.QueryString["categoryId"], order = "Desc" }, new { @class = "list-group-item" })
         </div>
     </div>
 
@@ -59,17 +59,17 @@
         <div class="row">
             @foreach (var item in Model)
             {
-            <div class="col-sm-4 col-lg-4 col-md-4" style="margin-top:25px;">
+            <div class="col-sm-4" style="height:320px; max-width:320px; margin-top:20px;">
                 <div class="thumbnail">
                         @foreach (PC4U.Models.Image image in item.Image)
                         {
-                            <img src="data:image/jpg;base64,@PC4U.Helpers.CustomConverter.ConvertByteArrayToString(image.EncodedImage)" style="max-height: 180px;" alt=""/>
+                            <img src="data:image/jpg;base64,@PC4U.Helpers.Helper.ConvertByteArrayToString(image.EncodedImage)" style="max-height: 180px;" alt=""/>
                         }
                         @if (item.Image.Count == 0)
                         {
                             <img src="https://placeholdit.imgix.net/~text?txtsize=30&txt=320%C3%97250&w=320&h=250" style="max-height: 180px;" alt="">
                         }
-                    <div class="caption" style="max-height: 130px;">
+                    <div class="caption" style="height: 130px;">
                         <h4>
                             @Html.DisplayFor(modelItem => item.ProductName)
                         </h4>
@@ -86,7 +86,7 @@
 @section Paging{
     <div class="col-sm-12" style="margin-bottom:100px;">
         <div style="display:inline-block; float:right; text-align:right">
-            @Html.PagedListPager(Model, page => Url.Action("Index", new { page, pageSize = Model.PageSize }))
+            @Html.PagedListPager(Model, pageNumber => Url.Action("Index", new { categoryId = Request.QueryString["categoryId"], order = Request.QueryString["order"], pageNumber, pageSize = Model.PageSize }))
             Showing @Model.FirstItemOnPage to @Model.LastItemOnPage of @Model.TotalItemCount products
         </div>
     </div>
