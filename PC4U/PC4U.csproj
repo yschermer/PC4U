@@ -312,7 +312,7 @@
     <Content Include="Views\Categories\Delete.cshtml" />
     <Content Include="Views\Categories\Edit.cshtml" />
     <Content Include="Views\Categories\Index.cshtml" />
-    <Content Include="Views\Carts\Checkout.cshtml" />
+    <Content Include="Views\Carts\PreCheckout.cshtml" />
     <Content Include="Views\Carts\Invoice.cshtml" />
     <Content Include="Views\Error\NotFound.cshtml" />
     <Content Include="Views\Carts\Empty.cshtml" />

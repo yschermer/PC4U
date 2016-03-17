@@ -157,7 +157,7 @@ namespace PC4U.Controllers
         [Authorize]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Checkout()
+        public ActionResult PreCheckout()
         {
             List<CartProduct> cartProducts = new List<CartProduct>();
 
@@ -176,11 +176,11 @@ namespace PC4U.Controllers
             return View(cartProducts);
         }
 
-        // POST: Orders/Create
+        // POST: Carts/Checkout
         [Authorize]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult CreateOrder([Bind(Include = "SendMail")] bool sendMail)
+        public ActionResult Checkout([Bind(Include = "SendMail")] bool sendMail)
         {
             Cart cart = db.Carts.Include(c => c.User).Where(c => c.UserId == user.Id && c.Status == StatusEnum.PENDING).FirstOrDefault();
             cart.Status = StatusEnum.PAID;

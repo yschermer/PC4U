@@ -93,7 +93,7 @@
     </tr>
 </table>
 <div style="margin-left:5px;">
-    @using (Html.BeginForm("Checkout", "Carts", FormMethod.Post))
+    @using (Html.BeginForm("PreCheckout", "Carts", FormMethod.Post))
     {
         @Html.AntiForgeryToken()
         <input type="submit" value="Continue to order" class="btn btn-default" />
