@@ -3,7 +3,7 @@
 @using PagedList
 
 @{
-    ViewBag.Title = "Index";
+    ViewBag.Title = "Home";
     <link href="~/Content/shop-homepage.css" type="text/css" rel="stylesheet" />
 }
 
@@ -18,8 +18,8 @@
             }
         </div>
         <div class="list-group">
-            @Html.ActionLink("Price ascending", "Index", new { categoryId = Request.QueryString["categoryId"], order = "Asc" }, new { @class = "list-group-item" })
-            @Html.ActionLink("Price descending", "Index", new { categoryId = Request.QueryString["categoryId"], order = "Desc" }, new { @class = "list-group-item" })
+            @Html.ActionLink(ViewResources.PriceAscending, "Index", new { categoryId = Request.QueryString["categoryId"], order = "Asc" }, new { @class = "list-group-item" })
+            @Html.ActionLink(ViewResources.PriceDescending, "Index", new { categoryId = Request.QueryString["categoryId"], order = "Desc" }, new { @class = "list-group-item" })
         </div>
     </div>
 
@@ -61,11 +61,11 @@
             {
             <div class="col-sm-4" style="height:320px; max-width:320px; margin-top:20px;">
                 <div class="thumbnail">
-                        @foreach (PC4U.Models.Image image in item.Image)
+                        @foreach (PC4U.Models.Image image in item.Images)
                         {
                             <img src="data:image/jpg;base64,@PC4U.Helpers.Helper.ConvertByteArrayToString(image.EncodedImage)" style="max-height: 180px;" alt=""/>
                         }
-                        @if (item.Image.Count == 0)
+                        @if (item.Images.Count == 0)
                         {
                             <img src="https://placeholdit.imgix.net/~text?txtsize=30&txt=320%C3%97250&w=320&h=250" style="max-height: 180px;" alt="">
                         }

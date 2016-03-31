@@ -22,7 +22,7 @@
             @Html.DisplayNameFor(model => model.Price)
         </th>
         <th>
-            @Html.DisplayNameFor(model => model.Image)
+            @Html.DisplayNameFor(model => model.Images)
         </th>
         <th></th>
     </tr>
@@ -41,7 +41,7 @@
         </td>
         <td>
             @{
-                foreach (PC4U.Models.Image image in item.Image)
+                foreach (PC4U.Models.Image image in item.Images)
                 {
                     <img src="data:image/jpg;base64,@PC4U.Helpers.Helper.ConvertByteArrayToString(image.EncodedImage)" width="80" height="80" />
                 }

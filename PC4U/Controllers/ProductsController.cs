@@ -19,7 +19,14 @@ namespace PC4U.Controllers
         // GET: Products
         public ActionResult Index()
         {
-            return View(db.Products.ToList());
+            List<Product> products = GetProductsIncludingImages();
+
+            if (products == null)
+            {
+                return HttpNotFound();
+            }
+
+            return View(products);
         }
 
         // GET: Products/Create
@@ -33,24 +40,17 @@ namespace PC4U.Controllers
         // POST: Products/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "Product, Images, SelectedImages")] ProductCreateEditViewModel productCreateViewModel)
+        public ActionResult Create([Bind(Include = "Product, ImageStrings")] ProductCreateEditViewModel productCreateViewModel)
         {
             if (ModelState.IsValid)
             {
+                if(productCreateViewModel.ImageStrings != null && productCreateViewModel.ImageStrings[0] != null)
+                {
+                    AddImageToProduct(productCreateViewModel);
+                }
                 db.Products.Add(productCreateViewModel.Product);
                 db.SaveChanges();
 
-                if (productCreateViewModel.Images != null && productCreateViewModel.Images[0] != null)
-                {
-                    foreach (var image in productCreateViewModel.Images)
-                    {
-                        Image imageObject = new Image();
-                        imageObject.EncodedImage = Helper.ConvertHttpPostedFileBaseToByteArray(image);
-                        imageObject.ProductId = productCreateViewModel.Product.ProductId;
-                        db.Images.Add(imageObject);
-                    }
-                    db.SaveChanges();
-                }
                 return RedirectToAction("Index");
             }
             return View(productCreateViewModel);
@@ -63,10 +63,19 @@ namespace PC4U.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
+
+            List<Product> products = GetProductsIncludingImages();
+
+            if(products == null)
+            {
+                return HttpNotFound();
+            }
+
             ProductCreateEditViewModel productEditViewModel = new ProductCreateEditViewModel()
             {
-                Product = db.Products.Find(id)
+                Product = products.Where(p => p.ProductId == id).FirstOrDefault()
             };
+
             if (productEditViewModel == null)
             {
                 return HttpNotFound();
@@ -80,36 +89,16 @@ namespace PC4U.Controllers
         // POST: Products/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit([Bind(Include = "Product, Images, SelectedImages")] ProductCreateEditViewModel productEditViewModel)
+        public ActionResult Edit([Bind(Include = "Product, ImageStrings")] ProductCreateEditViewModel productEditViewModel)
         {
+            if (productEditViewModel.ImageStrings != null && productEditViewModel.ImageStrings[0] != null)
+            {
+                AddImageToProduct(productEditViewModel);
+            }
             db.Entry(productEditViewModel.Product).State = EntityState.Modified;
             db.SaveChanges();
 
-            if (productEditViewModel.Images != null && productEditViewModel.Images[0] != null)
-            {
-                foreach (var image in productEditViewModel.Images)
-                {
-                    Image imageInstance = new Image();
-                    imageInstance.EncodedImage = Helper.ConvertHttpPostedFileBaseToByteArray(image);
-                    imageInstance.ProductId = productEditViewModel.Product.ProductId;
-                    db.Images.Add(imageInstance);
-                    db.SaveChanges();
-                }
-            }
-
-            if (productEditViewModel.SelectedImages != null)
-            {
-                foreach (int imageId in productEditViewModel.SelectedImages)
-                {
-                    Image imageInstance = db.Images.Find(imageId);
-                    db.Images.Remove(imageInstance);
-                    db.SaveChanges();
-                }
-            }
             return RedirectToAction("Index");
-
-            ViewBag.Categories = new SelectList(db.Categories.OrderBy(g => g.CategoryName), "CategoryId", "CategoryName", productEditViewModel.Product.CategoryId);
-            return View(productEditViewModel);
         }
 
         // GET: Products/Delete/5
@@ -145,6 +134,95 @@ namespace PC4U.Controllers
                 db.Dispose();
             }
             base.Dispose(disposing);
+        }
+
+        private List<Product> GetProductsIncludingImages()
+        {
+            List<Product> products = db.Products.ToList();
+
+            if(products != null)
+            {
+                foreach (Product p in products)
+                {
+                    p.Images = new List<Image>();
+                    p.Images = db.ImageProducts.Where(ip => ip.ProductId == p.ProductId).Include(ip => ip.Image).Select(ip => ip.Image).ToList();
+                }
+                return products;
+            }
+
+            return null;
+        }
+
+
+        private void AddImageToProduct(ProductCreateEditViewModel productCreateEditViewModel)
+        {
+            using (var dbContextTransaction = db.Database.BeginTransaction())
+            {
+                try
+                {
+                    foreach (HttpPostedFileBase imageString in productCreateEditViewModel.ImageStrings)
+                    {
+                        byte[] encodedImage = Helper.ConvertHttpPostedFileBaseToByteArray(imageString);
+                        int imageId;
+
+                        // Add the image to the images table if it doesn't exist in the db yet.
+                        if (!db.Images.Where(i => i.EncodedImage == encodedImage).Any())
+                        {
+                            // Create the new id of the images table.
+                            imageId = db.Images.Any() ? db.Images.Max(c => c.ImageId) + 1 : 1;
+
+                            db.Images.Add(new Image()
+                            {
+                                ImageId = imageId,
+                                EncodedImage = encodedImage
+                            });
+                            db.SaveChanges();
+                        }
+                        else
+                        {
+                            // Get the already existing imageId that corresponds to the picture that is to be added.
+                            imageId = db.Images.Where(i => i.EncodedImage == encodedImage).FirstOrDefault().ImageId;
+                        }
+
+                        // Add a record to the ImageProduct junction table.
+                        db.ImageProducts.Add(new ImageProduct()
+                        {
+                            ImageId = imageId,
+                            ProductId = productCreateEditViewModel.Product.ProductId
+                        });
+                        db.SaveChanges();
+
+                        dbContextTransaction.Commit();
+                    }
+                }
+                catch (Exception)
+                {
+                    dbContextTransaction.Rollback();
+                }
+            }
+        }
+
+        [HttpPost]
+        public ActionResult RemoveImageFromProduct(int productId, int imageId)
+        {
+            // Get all the products that are related with the imageId.
+            List<ImageProduct> imageProducts = db.ImageProducts.Where(ip => ip.ImageId == imageId).ToList();
+
+            // Get THIS product that is related with the imageId.
+            ImageProduct imageProduct = imageProducts.Where(ip => ip.ProductId == productId && ip.ImageId == imageId).FirstOrDefault();
+
+            // Remove the image from the images table if it isn't related with any other product.
+            if (imageProducts.Count == 1)
+            {
+                Image image = db.Images.Find(imageProduct.ImageId);
+                db.Images.Remove(image);
+            }
+
+            // Remove the image-product relation.
+            db.ImageProducts.Remove(imageProduct);
+            db.SaveChanges();
+
+            return new EmptyResult();
         }
     }
 }

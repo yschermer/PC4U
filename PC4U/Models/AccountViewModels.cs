@@ -6,8 +6,8 @@ namespace PC4U.Models
 {
     public class ExternalLoginConfirmationViewModel
     {
-        [Required]
-        [Display(Name = "Email")]
+        [Required(AllowEmptyStrings = false, ErrorMessageResourceName = "Required", ErrorMessageResourceType = typeof(Resources.ModelResources))]
+        [Display(Name = "EmailAddress", ResourceType = typeof(Resources.ModelResources))]
         public string Email { get; set; }
     }
 
@@ -26,10 +26,10 @@ namespace PC4U.Models
 
     public class VerifyCodeViewModel
     {
-        [Required]
+        [Required(AllowEmptyStrings = false, ErrorMessageResourceName = "Required", ErrorMessageResourceType = typeof(Resources.ModelResources))]
         public string Provider { get; set; }
 
-        [Required]
+        [Required(AllowEmptyStrings = false, ErrorMessageResourceName = "Required", ErrorMessageResourceType = typeof(Resources.ModelResources))]
         [Display(Name = "Code")]
         public string Code { get; set; }
         public string ReturnUrl { get; set; }
@@ -42,132 +42,130 @@ namespace PC4U.Models
 
     public class ForgotViewModel
     {
-        [Required]
-        [Display(Name = "Emailaddress")]
+        [Required(AllowEmptyStrings = false, ErrorMessageResourceName = "Required", ErrorMessageResourceType = typeof(Resources.ModelResources))]
+        [Display(Name = "EmailAddress", ResourceType = typeof(Resources.ModelResources))]
         public string Email { get; set; }
     }
 
     public class LoginViewModel
     {
-        [Required]
-        [Display(Name = "Emailaddress")]
+        [Required(AllowEmptyStrings = false, ErrorMessageResourceName = "Required", ErrorMessageResourceType = typeof(Resources.ModelResources))]
+        [Display(Name = "EmailAddress", ResourceType = typeof(Resources.ModelResources))]
         [EmailAddress]
         public string Email { get; set; }
 
-        [Required]
+        [Required(AllowEmptyStrings = false, ErrorMessageResourceName = "Required", ErrorMessageResourceType = typeof(Resources.ModelResources))]
         [DataType(DataType.Password)]
-        [Display(Name = "Password")]
+        [Display(Name = "Password", ResourceType = typeof(Resources.ModelResources))]
         public string Password { get; set; }
 
-        [Display(Name = "Remember me?")]
+        [Display(Name = "RememberMe", ResourceType = typeof(Resources.ModelResources))]
         public bool RememberMe { get; set; }
     }
 
     public class RegisterViewModel
     {
-        const string REQUIRED_TEXT = "This field is required.";
-
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
             if (Title != TitleEnum.MALE && Title != TitleEnum.FEMALE)
             {
-                yield return new ValidationResult(REQUIRED_TEXT, new[] { "Title" });
+                yield return new ValidationResult(Resources.ModelResources.Required, new[] { "Title" });
             }
 
             if (DateTime.Now.Year - BirthDate.Year < 18)
             {
-                yield return new ValidationResult("You must be above 18 years old.", new[] { "BirthDate" });
+                yield return new ValidationResult(Resources.ModelResources.TooYoung, new[] { "BirthDate" });
             }
         }
 
-        [Required(ErrorMessage = REQUIRED_TEXT)]
-        [Display(Name = "Title")]
+        [Required(AllowEmptyStrings = false, ErrorMessageResourceName = "Required", ErrorMessageResourceType = typeof(Resources.ModelResources))]
+        [Display(Name = "Title", ResourceType = typeof(Resources.ModelResources))]
         public virtual TitleEnum Title { get; set; }
 
-        [Required(ErrorMessage = REQUIRED_TEXT)]
-        [StringLength(50, ErrorMessage = "This field may not contain less than 2 and more than 50 characters.", MinimumLength = 2)]
-        [Display(Name = "First name")]
+        [Required(AllowEmptyStrings = false, ErrorMessageResourceName = "Required", ErrorMessageResourceType = typeof(Resources.ModelResources))]
+        [StringLength(50, ErrorMessageResourceName = "RangeString", ErrorMessageResourceType = typeof(Resources.ModelResources), MinimumLength = 2)]
+        [Display(Name = "FirstName", ResourceType = typeof(Resources.ModelResources))]
         public virtual string FirstName { get; set; }
 
-        [Required(ErrorMessage = REQUIRED_TEXT)]
-        [StringLength(50, ErrorMessage = "This field may not contain less than 2 and more than 50 characters.", MinimumLength = 2)]
-        [Display(Name = "Last name")]
+        [Required(AllowEmptyStrings = false, ErrorMessageResourceName = "Required", ErrorMessageResourceType = typeof(Resources.ModelResources))]
+        [StringLength(50, ErrorMessageResourceName = "RangeString", ErrorMessageResourceType = typeof(Resources.ModelResources), MinimumLength = 2)]
+        [Display(Name = "LastName", ResourceType = typeof(Resources.ModelResources))]
         public virtual string LastName { get; set; }
 
-        [Required(ErrorMessage = REQUIRED_TEXT)]
-        [Display(Name = "Country")]
+        [Required(AllowEmptyStrings = false, ErrorMessageResourceName = "Required", ErrorMessageResourceType = typeof(Resources.ModelResources))]
+        [Display(Name = "Country", ResourceType = typeof(Resources.ModelResources))]
         public virtual string Country { get; set; }
 
-        [Required(ErrorMessage = REQUIRED_TEXT)]
-        [StringLength(10, ErrorMessage = "This field may not contain less than 6 and more than 10 characters.", MinimumLength = 6)]
+        [Required(AllowEmptyStrings = false, ErrorMessageResourceName = "Required", ErrorMessageResourceType = typeof(Resources.ModelResources))]
+        [StringLength(10, ErrorMessageResourceName = "RangeString", ErrorMessageResourceType = typeof(Resources.ModelResources), MinimumLength = 6)]
         [DataType(DataType.PostalCode)]
-        [Display(Name = "Postal code")]
+        [Display(Name = "PostalCode", ResourceType = typeof(Resources.ModelResources))]
         public virtual string PostalCode { get; set; }
 
-        [Required(ErrorMessage = REQUIRED_TEXT)]
-        [Display(Name = "Housenumber")]
+        [Required(AllowEmptyStrings = false, ErrorMessageResourceName = "Required", ErrorMessageResourceType = typeof(Resources.ModelResources))]
+        [Display(Name = "HouseNumber", ResourceType = typeof(Resources.ModelResources))]
         public virtual int HouseNumber { get; set; }
 
-        [StringLength(10, ErrorMessage = "This field may not contain more than 10 characters.")]
-        [Display(Name = "Housenumber suffix")]
+        [StringLength(10, ErrorMessageResourceName = "MaxString", ErrorMessageResourceType = typeof(Resources.ModelResources))]
+        [Display(Name = "HouseNumberSuffix", ResourceType = typeof(Resources.ModelResources))]
         public virtual string HouseNumberExtension { get; set; }
 
-        [Required(ErrorMessage = REQUIRED_TEXT)]
-        [StringLength(50, ErrorMessage = "This field may not contain less than 2 and more than 50 characters.", MinimumLength = 2)]
-        [Display(Name = "Street")]
+        [Required(AllowEmptyStrings = false, ErrorMessageResourceName = "Required", ErrorMessageResourceType = typeof(Resources.ModelResources))]
+        [StringLength(50, ErrorMessageResourceName = "RangeString", ErrorMessageResourceType = typeof(Resources.ModelResources), MinimumLength = 2)]
+        [Display(Name = "Street", ResourceType = typeof(Resources.ModelResources))]
         public virtual string Street { get; set; }
 
-        [Required(ErrorMessage = REQUIRED_TEXT)]
-        [StringLength(100, ErrorMessage = "This field may not contain less than 6 and more than 100 characters.", MinimumLength = 6)]
-        [Display(Name = "City")]
+        [Required(AllowEmptyStrings = false, ErrorMessageResourceName = "Required", ErrorMessageResourceType = typeof(Resources.ModelResources))]
+        [StringLength(100, ErrorMessageResourceName = "RangeString", ErrorMessageResourceType = typeof(Resources.ModelResources), MinimumLength = 6)]
+        [Display(Name = "City", ResourceType = typeof(Resources.ModelResources))]
         public virtual string City { get; set; }
 
-        [Required(ErrorMessage = REQUIRED_TEXT)]
+        [Required(AllowEmptyStrings = false, ErrorMessageResourceName = "Required", ErrorMessageResourceType = typeof(Resources.ModelResources))]
         [DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:MM/dd/yyyy}")]
-        [Display(Name = "Date of birth")]
+        [Display(Name = "BirthDate", ResourceType = typeof(Resources.ModelResources))]
         [DataType(DataType.Date)]
         public virtual DateTime BirthDate { get; set; }
 
-        [Required(ErrorMessage = REQUIRED_TEXT)]
-        [StringLength(20, ErrorMessage = "This field may not contain less than 7 and more than 20 characters.", MinimumLength = 7)]
+        [Required(AllowEmptyStrings = false, ErrorMessageResourceName = "Required", ErrorMessageResourceType = typeof(Resources.ModelResources))]
+        [StringLength(20, ErrorMessageResourceName = "RangeString", ErrorMessageResourceType = typeof(Resources.ModelResources), MinimumLength = 7)]
         [DataType(DataType.PhoneNumber)]
-        [Display(Name = "Phonenumber")]
+        [Display(Name = "PhoneNumber", ResourceType = typeof(Resources.ModelResources))]
         public virtual string TelephoneNumber { get; set; }
 
-        [Required(ErrorMessage = REQUIRED_TEXT)]
+        [Required(AllowEmptyStrings = false, ErrorMessageResourceName = "Required", ErrorMessageResourceType = typeof(Resources.ModelResources))]
         [EmailAddress]
-        [Display(Name = "Emailaddress")]
+        [Display(Name = "EmailAddress", ResourceType = typeof(Resources.ModelResources))]
         public string Email { get; set; }
 
-        [Required(ErrorMessage = REQUIRED_TEXT)]
-        [StringLength(50, ErrorMessage = "This field may not contain less than 6 and more than 50 characters.", MinimumLength = 6)]
+        [Required(AllowEmptyStrings = false, ErrorMessageResourceName = "Required", ErrorMessageResourceType = typeof(Resources.ModelResources))]
+        [StringLength(50, ErrorMessageResourceName = "RangeString", ErrorMessageResourceType = typeof(Resources.ModelResources), MinimumLength = 6)]
         [DataType(DataType.Password)]
-        [Display(Name = "Password")]
+        [Display(Name = "Password", ResourceType = typeof(Resources.ModelResources))]
         public string Password { get; set; }
 
-        [Required(ErrorMessage = REQUIRED_TEXT)]
+        [Required(AllowEmptyStrings = false, ErrorMessageResourceName = "Required", ErrorMessageResourceType = typeof(Resources.ModelResources))]
         [DataType(DataType.Password)]
-        [Display(Name = "Confirm password")]
+        [Display(Name = "ConfirmPassword", ResourceType = typeof(Resources.ModelResources))]
         [Compare("Password", ErrorMessage = "The passwords do not match.")]
         public string ConfirmPassword { get; set; }
     }
 
     public class ResetPasswordViewModel
     {
-        [Required]
+        [Required(AllowEmptyStrings = false, ErrorMessageResourceName = "Required", ErrorMessageResourceType = typeof(Resources.ModelResources))]
         [EmailAddress]
-        [Display(Name = "Emailaddress")]
+        [Display(Name = "EmailAddress", ResourceType = typeof(Resources.ModelResources))]
         public string Email { get; set; }
 
-        [Required]
-        [StringLength(50, ErrorMessage = "This field may not contain less than 6 and more than 50 characters.", MinimumLength = 6)]
+        [Required(AllowEmptyStrings = false, ErrorMessageResourceName = "Required", ErrorMessageResourceType = typeof(Resources.ModelResources))]
+        [StringLength(50, ErrorMessageResourceName = "RangeString", ErrorMessageResourceType = typeof(Resources.ModelResources), MinimumLength = 6)]
         [DataType(DataType.Password)]
-        [Display(Name = "Password")]
+        [Display(Name = "Password", ResourceType = typeof(Resources.ModelResources))]
         public string Password { get; set; }
 
+        [Compare("Password", ErrorMessageResourceName = "FalsePasswordMatch", ErrorMessageResourceType = typeof(Resources.ModelResources))]
         [DataType(DataType.Password)]
-        [Display(Name = "Confirm password")]
-        [Compare("Password", ErrorMessage = "The passwords do not match.")]
+        [Display(Name = "ConfirmPassword", ResourceType = typeof(Resources.ModelResources))]
         public string ConfirmPassword { get; set; }
 
         public string Code { get; set; }
@@ -175,9 +173,9 @@ namespace PC4U.Models
 
     public class ForgotPasswordViewModel
     {
-        [Required]
+        [Required(AllowEmptyStrings = false, ErrorMessageResourceName = "Required", ErrorMessageResourceType = typeof(Resources.ModelResources))]
         [EmailAddress]
-        [Display(Name = "Emailaddress")]
+        [Display(Name = "EmailAddress", ResourceType = typeof(Resources.ModelResources))]
         public string Email { get; set; }
     }
 }

@@ -16,9 +16,9 @@ namespace PC4U.Models
         [Key, Column(Order = 1)]
         public virtual int ProductId { get; set; }
 
-        [Required]
-        [Display(Name = "Amount")]
-        [Range(1, 1000, ErrorMessage = "The amount cannot be lower than 1 and more than 1000.")]
+        [Required(ErrorMessageResourceName = "Required", ErrorMessageResourceType = typeof(Resources.ModelResources))]
+        [Range(1, 1000, ErrorMessageResourceName = "RangeInt", ErrorMessageResourceType = typeof(Resources.ModelResources))]
+        [Display(Name = "Amount", ResourceType = typeof(Resources.ModelResources))]
         public virtual int AmountOfProducts { get; set; }
 
         public virtual Cart Cart { get; set; }

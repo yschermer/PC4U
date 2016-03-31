@@ -60,7 +60,7 @@ namespace PC4U.Migrations
             // Creates users and adds roles automatically
             foreach (ApplicationUser user in users)
             {
-                Helpers.Helper.CreateUserByRole(Helpers.Helper.RoleEnum.Administrator, user, "Horizon123!");
+                Helpers.Helper.CreateUserByRole(Helpers.Helper.RoleEnum.Administrator, user, "Horizon123!", context);
             }
         }
     }

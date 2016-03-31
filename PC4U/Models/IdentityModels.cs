@@ -27,7 +27,7 @@ namespace PC4U.Models
         public virtual string Country { get; set; }
         public virtual string PostalCode { get; set; }
         public virtual int HouseNumber { get; set; }
-        public virtual string HouseNumberExtension { get; set; }
+        public virtual string HouseNumberSuffix { get; set; }
         public virtual string Street { get; set; }
         public virtual string City { get; set; }
         public virtual DateTime BirthDate { get; set; }
@@ -49,6 +49,7 @@ namespace PC4U.Models
         public DbSet<Category> Categories { get; set; }
         public DbSet<Cart> Carts { get; set; }
         public DbSet<CartProduct> CartProducts { get; set; }
+        public DbSet<ImageProduct> ImageProducts { get; set; }
 
         public ApplicationDbContext()
             : base("DefaultConnection", throwIfV1Schema: false)

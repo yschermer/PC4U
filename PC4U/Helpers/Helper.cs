@@ -14,31 +14,28 @@ namespace PC4U.Helpers
             Administrator
         }
 
-        public static void CreateUserByRole(RoleEnum role, ApplicationUser user, string password)
+        public static void CreateUserByRole(RoleEnum role, ApplicationUser user, string password, ApplicationDbContext db)
         {
             user.Id = Guid.NewGuid().ToString();
 
-            using (var context = new ApplicationDbContext())
+            var store = new UserStore<ApplicationUser>(db);
+            var manager = new UserManager<ApplicationUser>(store);
+
+            using (var dbContextTransaction = db.Database.BeginTransaction())
             {
-                var store = new UserStore<ApplicationUser>(context);
-                var manager = new UserManager<ApplicationUser>(store);
-
-                using (var dbContextTransaction = context.Database.BeginTransaction())
+                try
                 {
-                    try
-                    {
-                        manager.Create(user, password);
-                        context.SaveChanges();
+                    manager.Create(user, password);
+                    db.SaveChanges();
 
-                        manager.AddToRole(user.Id, Enum.GetName(typeof(RoleEnum), (int)role));
-                        context.SaveChanges();
+                    manager.AddToRole(user.Id, Enum.GetName(typeof(RoleEnum), (int)role));
+                    db.SaveChanges();
 
-                        dbContextTransaction.Commit();
-                    }
-                    catch (Exception)
-                    {
-                        dbContextTransaction.Rollback();
-                    }
+                    dbContextTransaction.Commit();
+                }
+                catch (Exception)
+                {
+                    dbContextTransaction.Rollback();
                 }
             }
         }
@@ -46,6 +43,7 @@ namespace PC4U.Helpers
         public static byte[] ConvertHttpPostedFileBaseToByteArray(HttpPostedFileBase httpPostedFileBase)
         {
             byte[] byteArray = new byte[httpPostedFileBase.ContentLength];
+            httpPostedFileBase.InputStream.Position = 0;
             httpPostedFileBase.InputStream.Read(byteArray, 0, byteArray.Length);
             return byteArray;
         }

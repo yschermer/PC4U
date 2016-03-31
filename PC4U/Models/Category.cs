@@ -10,8 +10,8 @@ namespace PC4U.Models
     {
         public virtual int CategoryId { get; set; }
 
-        [Required(ErrorMessage = "This field is required.")]
-        [Display(Name = "Category")]
+        [Required(AllowEmptyStrings = false, ErrorMessageResourceName = "Required", ErrorMessageResourceType = typeof(Resources.ModelResources))]
+        [Display(Name = "Category", ResourceType = typeof(Resources.ModelResources))]
         public virtual string CategoryName { get; set; }
 
         public virtual List<Product> Product { get; set; }

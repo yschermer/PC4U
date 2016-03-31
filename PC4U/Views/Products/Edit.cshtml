@@ -43,30 +43,38 @@
         </div>
 
         <div class="form-group">
-            @Html.LabelFor(model => model.Product.Image, htmlAttributes: new { @class = "control-label col-md-2" })
+            @Html.LabelFor(model => model.Product.Images, htmlAttributes: new { @class = "control-label col-md-2" })
             <div class="col-md-10">
+                <input style="margin-bottom:20px;" type="file" id="images" name="imageStrings" />
                 @{
-                    foreach (PC4U.Models.Image image in Model.Product.Image)
+                    foreach (PC4U.Models.Image image in Model.Product.Images)
                     {
-                        <img src="data:image/jpg;base64,@PC4U.Helpers.Helper.ConvertByteArrayToString(image.EncodedImage)" width="80" height="80" />
-                        <input type="checkbox" id="@image.ImageId" name="selectedimages" value="@image.ImageId" />
+                        <div id="@image.ImageId" class="col-sm-2">
+                            <img src="data:image/jpg;base64,@PC4U.Helpers.Helper.ConvertByteArrayToString(image.EncodedImage)" height="80" class="col-sm-12" />
+                            @Ajax.ActionLink("Remove", "RemoveImageFromProduct", new { productId = Model.Product.ProductId, imageId = image.ImageId },
+                                new AjaxOptions
+                                {
+                                    UpdateTargetId = image.ImageId.ToString(),
+                                    InsertionMode = InsertionMode.Replace,
+                                    HttpMethod = "POST",
+                                })
+                        </div>
                     }
                 }
-                <input type="file" id="images" name="images" />
-                @Html.ValidationMessageFor(model => model.Product.Image, "", new { @class = "text-danger" })
+                @Html.ValidationMessageFor(model => model.Product.Images, "", new { @class = "text-danger" })
             </div>
         </div>
 
         <div class="form-group">
             <div class="col-md-offset-2 col-md-10">
-                <input type="submit" value="Save" class="btn btn-default" />
+                <input name="submit" type="submit" value="Save" class="btn btn-default" />
             </div>
         </div>
     </div>
-}
+                    }
 
 <div>
-    @Html.ActionLink("Back to List", "Index")
+    @Html.ActionLink(ViewResources.BackToList, "Index")
 </div>
 
 @section Scripts {

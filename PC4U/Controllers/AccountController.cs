@@ -170,7 +170,7 @@ namespace PC4U.Controllers
                     Country = model.Country,
                     PostalCode = model.PostalCode,
                     HouseNumber = model.HouseNumber,
-                    HouseNumberExtension = model.HouseNumberExtension,
+                    HouseNumberSuffix = model.HouseNumberExtension,
                     Street = model.Street,
                     City = model.City,
                     BirthDate = model.BirthDate,

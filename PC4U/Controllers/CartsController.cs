@@ -69,9 +69,10 @@ namespace PC4U.Controllers
             return cartProducts;
         }
 
-        // POST: Carts/Create
+        // POST: Carts/AddToCart
         [HttpPost]
-        public ActionResult AddToCart([Bind(Include = "CartId, ProductId, AmountOfProducts")] CartProduct cartProduct)
+        [ValidateAntiForgeryToken]
+        public ActionResult AddToCart([Bind(Include = "ProductId, AmountOfProducts")] CartProduct cartProduct)
         {
             // Check if it is a user or a visitor, and if the amount of products is more than 0.
             if (cartProduct.AmountOfProducts > 0)
@@ -116,7 +117,7 @@ namespace PC4U.Controllers
             {
                 cart = new Cart()
                 {
-                    CartId = db.Carts.Any() ? db.Carts.Max(c => c.CartId) : 1,
+                    CartId = db.Carts.Any() ? db.Carts.Max(c => c.CartId) + 1: 1,
                     UserId = user.Id,
                     Status = StatusEnum.PENDING
                 };

@@ -6,22 +6,20 @@ namespace PC4U.Models
 {
     public class Product
     {
-        const string REQUIRED_TEXT = "This field is required.";
-
         public virtual int ProductId { get; set; }
         public virtual int CategoryId { get; set; }
 
-        [Required(ErrorMessage = REQUIRED_TEXT)]
-        [Display(Name = "Product")]
+        [Required(AllowEmptyStrings = false, ErrorMessageResourceName = "Required", ErrorMessageResourceType = typeof(Resources.ModelResources))]
+        [Display(Name = "Product", ResourceType = typeof(Resources.ModelResources))]
         public virtual string ProductName { get; set; }
 
-        [Required(ErrorMessage = REQUIRED_TEXT)]
+        [Required(AllowEmptyStrings = false, ErrorMessageResourceName = "Required", ErrorMessageResourceType = typeof(Resources.ModelResources))]
         [DataType(DataType.Currency)]
-        [Display(Name = "Price")]
+        [Display(Name = "Price", ResourceType = typeof(Resources.ModelResources))]
         public virtual decimal Price { get; set; }
 
-        [Display(Name = "Image")]
-        public virtual List<Image> Image { get; set; }
+        [Display(Name = "Images", ResourceType = typeof(Resources.ModelResources))]
+        public virtual List<Image> Images { get; set; }
         public virtual List<Cart> Carts { get; set; }
         public virtual Category Category { get; set; }
     }
@@ -29,7 +27,6 @@ namespace PC4U.Models
     public class ProductCreateEditViewModel
     {
         public virtual Product Product { get; set; }
-        public virtual List<HttpPostedFileBase> Images { get; set; }
-        public virtual int[] SelectedImages { get; set; }
+        public virtual List<HttpPostedFileBase> ImageStrings { get; set; }
     }
 }

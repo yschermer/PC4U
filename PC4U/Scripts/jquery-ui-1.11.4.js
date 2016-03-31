@@ -583,7 +583,7 @@ $.Widget.prototype = {
 			options );
 
 		this._create();
-		this._trigger( "create", null, this._getCreateEventData() );
+		this._trigger( "Create", null, this._getCreateEventData() );
 		this._init();
 	},
 	_getCreateOptions: $.noop,
